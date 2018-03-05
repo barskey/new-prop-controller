@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+  	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+
+		<!-- Custom styles for this template -->
+		<link rel="stylesheet" href="static/css/jquery.flowchart.css">
+
+		<title>Prop Controller</title>
+	</head>
+
+	<body>
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-2">
+					<div class="card mt-3">
+						<div class="card-header bg-info">
+							<h6 class="text-white">Controllers<span class="fas fa-bars float-right" data-toggle="collapse" data-target="#controllerList"></span></h6>
+						</div>
+						<div id="controllerList" class="collapse show">
+							<ul class="list-group list-group-flush">
+								{% for c in controllers %}
+								<li class="list-group-item">{{ c.name }}<span class="fas fa-cog float-right"></span></li>
+								{% endfor %}
+							</ul>
+						</div>
+					</div>
+					<div class="card mt-3">
+						<div class="card-header bg-success">
+							<h6 class="text-white">Triggers<span class="fas fa-plus-circle float-right"></span></h6>
+						</div>
+						<div class="card-body">
+							<p class="card-text">Async mode is: <b>{{ async_mode }}</b></p>
+							<p class="card-text">Average ping/pong latency: <b><span id="ping-pong"></span>ms</b></p>
+						</div>
+					</div>
+					<div class="card mt-3">
+						<div class="card-header bg-danger">
+							<h6 class="text-white">Actions<span class="fas fa-plus-circle float-right"></span></h6>
+						</div>
+						<ul id="triggerList" class="list-group list-group-flush">
+							<li class="list-group-item">
+								<form id="emit" method="POST" action="#">
+									<input type="text" name="emit_data" id="emit_data" placeholder="Message">
+									<input type="submit" value="Echo">
+								</form>
+							</li>
+							<li class="list-group-item">
+								<form id="broadcast" method="POST" action="#">
+									<input type="text" name="broadcast_data" id="broadcast_data" placeholder="Message">
+									<input type="submit" value="Broadcast">
+								</form>
+							</li>
+						</div>
+				</div>
+				<div class="col-7">
+					<div id="dashboard" class="mt-3" style="height:100%"></div>
+				</div>
+				<div class="col">
+					<div id="statusPane" class="card bg-light mt-3" style="height:200px">
+						<div class="card-header">
+							<h6>Status</h6>
+						</div>
+						<div class="card-body" style="overflow-y:scroll">
+							<div id="log" class="card-text"></div>
+						</div>
+					</div>
+					<div id="addTrigger" class="card mt-3 alert-success">
+						<div class="card-header">
+							<h6>Add Trigger</h6>
+						</div>
+						<div class="card-body">
+							<form id="triggerForm" method="POST" action="#">
+								<div class="form-group row">
+									<label for="triggerName" class="col-sm-4 col-form-label">Name</label>
+									<div class="col-sm-8"><input type="text" class="form-control" id="triggerName" name="triggerName"></div>
+								</div>
+								<div class="form-group row">
+									<label for="triggerType" class="col-sm-4 col-form-label">Type</label>
+									<div class="col-sm-8">
+										<select id="triggerType" class="custom-select" name="triggerType">
+											<option selected>Timer</option>
+											<option>Random</option>
+											<option>Input</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group row triggerTimer">
+									<label for="triggerParam1" class="col-sm-4 col-form-label">Every</label>
+									<div class="col-sm-8">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<div class="input-group-text">(s)</div>
+											</div>
+											<input type="text" class="form-control" id="triggerParam1" name="param1">
+										</div>
+									</div>
+								</div>
+								<div class="form-group row triggerRandom d-none">
+									<div class="col-sm-6">
+										<label for="triggerParam1">Between</label>
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<div class="input-group-text">(s)</div>
+											</div>
+											<input type="text" class="form-control" id="triggerParam1" name="param1">
+										</div>
+									</div>
+									<div class="col-sm-6">
+										<label for="triggerParam2">...and</label>
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<div class="input-group-text">(s)</div>
+											</div>
+											<input type="text" class="form-control" id="triggerParam2" name="param2">
+										</div>
+									</div>
+								</div>
+								<div class="form-group row triggerInput d-none">
+									<label for="triggerInput" class="col-sm-4 col-form-label">Input</label>
+									<div class="col-sm-8">
+										<select id="triggerInput" class="custom-select" name="triggerInput">
+										</select>
+									</div>
+								</div>
+								<div class="form-row">
+									<div class="col-sm-6>"><button type="submit" class="btn btn-success">Save</button></div>
+									<div class="col-sm-6>"><button type="button" class="btn btn-danger">Remove</button></div>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div id="addAction" class="card mt-3 alert-danger">
+						<div class="card-header">
+							<h6>Add Action</h6>
+						</div>
+						<div class="card-body">
+							<form id="actionForm" method="POST" action="#">
+								<div class="form-group row">
+									<label for="actionName" class="col-sm-4 col-form-label">Name</label>
+									<div class="col-sm-8"><input type="text" class="form-control" id="actionName" name="actionName"></div>
+								</div>
+								<div class="form-group row">
+									<label for="actionType" class="col-sm-4 col-form-label">Type</label>
+									<div class="col-sm-8">
+										<select id="actionType" class="custom-select" name="actionType">
+											<option value="Output" selected>Set Output</option>
+											<option value="Toggle">Toggle Output</option>
+											<option value="Sound">Play Sound</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group row actionOutput actionToggle">
+									<label for="actionOutput" class="col-sm-4 col-form-label">Output</label>
+									<div class="col-sm-8">
+										<select id="actionOutput" class="custom-select" name="actionOutput">
+										</select>
+									</div>
+								</div>
+								<div class="form-group row actionSound d-none">
+									<label for="actionSound" class="col-sm-4 col-form-label">Sound</label>
+									<div class="col-sm-8">
+										<select id="actionSound" class="custom-select" name="actionSound">
+										</select>
+									</div>
+								</div>
+								<div class="form-row">
+									<div class="col-sm-6>"><button type="submit" class="btn btn-success">Save</button></div>
+									<div class="col-sm-6>"><button type="button" class="btn btn-danger">Remove</button></div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+		<script src="static/js/jquery-3.3.1.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+		<script src="static/js/bootstrap.min.js"></script>
+		<script src="static/js/fontawesome-all.js"></script>
+
+		<!-- Other JavaScript -->
+		<script src="static/js/jquery-ui.min.js"></script>
+		<script src="static/js/socket.io.slim.js"></script>
+		<script src="static/js/jquery.flowchart.js"></script>
+		<script src="static/js/event-graph.js"></script>
+		<script src="static/js/main.js"></script>
+		<script>$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};</script>
+	</body>
+</html>

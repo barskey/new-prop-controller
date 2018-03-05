@@ -107,7 +107,7 @@
 .flowchart-operator {
     position: absolute;
     width: 140px;
-    border: 1px solid #CCCCCC;
+    border: 2px solid #CCCCCC;
     background: #FAFAFA;
     pointer-events: initial;
 }
@@ -117,7 +117,7 @@
 }
 
 .flowchart-operator.selected {
-    border-color: #555;
+    border-color: #32CD;
 }
 
 

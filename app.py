@@ -1,6 +1,7 @@
 from threading import Lock
 from flask import Flask, render_template, session, request, url_for
-from flask_socketio import SocketIO, emit, disconnect
+from flask_socketio import SocketIO, emit
+import json
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
@@ -13,25 +14,28 @@ socketio = SocketIO(app, async_mode=async_mode)
 thread = None
 thread_lock = Lock()
 
-op = {
-	'title': 'Title',
-	'top': 20,
-	'left': 20,
-}
-
 def background_thread():
 	"""Example of how to send server generated events to clients."""
 	count = 0
 	while True:
 		socketio.sleep(10)
 		count += 1
+		print ('emitting my_response')
 		socketio.emit('my_response', {'data': 'Server generated event', 'count': count})
 
 
 @app.route('/')
 def index():
-	return render_template('index.html', async_mode=socketio.async_mode)
+	controllers = json.load(open('data/controllers.json'))
+	return render_template('index.html', controllers=controllers)
 
+
+@app.route('/dashboard')
+def dashboard():
+	triggers = {}
+	actions = {}
+	data = {}
+	return render_template('dashboard.html', async_mode=socketio.async_mode, triggers=triggers, actions=actions, graphData=data)
 
 @socketio.on('my_event')
 def test_message(message):
@@ -63,6 +67,7 @@ def ping_pong():
 
 @socketio.on('connect')
 def test_connect():
+	print ('connected')
 	global thread
 	with thread_lock:
 		if thread is None:
@@ -70,18 +75,35 @@ def test_connect():
 	emit('my_response', {'data': 'Connected', 'count': 0})
 
 
-@socketio.on('disconnect')
-def test_disconnect():
-	print('Client disconnected', request.sid)
+@socketio.on('add_trigger')
+def add_trigger(msg):
+	result = makeDict(msg['data'])
+	op = {
+		'top': 20,
+		'left': 20,
+		'properties': { 'title': result['name'], 'inputs': {}, 'outputs': {'out1': {'label': 'Start'}}}
+	}
+	print ('emitting add_to_graph')
+	emit('add_to_graph', {'data': op})
 
-@socketio.on('add_node')
-def add_node(message):
-	global op
-	op_to_add = op
-	op_to_add['type'] = message['data']
-	op_to_add['title'] = op['title'] + '1'
-	emit('add_to_graph',
-		{'data': op_to_add})
+
+@socketio.on('add_action')
+def add_action(msg):
+	result = makeDict(msg['data'])
+	op = {
+		'top': 20,
+		'left': 20,
+		'properties': { 'title': result['name'], 'inputs': {'in1': {'label': 'In'}}, 'outputs': {'out1': {'label': 'Out'}}}
+	}
+	emit('add_to_graph', {'data': op})
+
+
+def makeDict(array):
+	obj = {}
+	for item in array:
+		obj[item['name']] = item['value']
+	return obj
+
 
 if __name__ == '__main__':
 	socketio.run(app, debug=True)

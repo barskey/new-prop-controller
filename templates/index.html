@@ -1,117 +1,162 @@
-<!DOCTYPE HTML>
-<html>
-<head>
-	<title>Flask-SocketIO Test</title>
-	<script>$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};</script>
-	<script	src="static/js/jquery-3.3.1.min.js"></script>
-	<script src="static/js/jquery-ui.min.js"></script>
-	<script src="static/js/socket.io.slim.js"></script>
-	<script src="static/js/jquery.flowchart.min.js"></script>
-	<script type="text/javascript" charset="utf-8">
-		$(document).ready(function() {
-			// Use a "/test" namespace.
-			// An application can open a connection on multiple namespaces, and
-			// Socket.IO will multiplex all those connections on a single
-			// physical channel. If you don't care about multiple channels, you
-			// can set the namespace to an empty string.
-			namespace = '';
-			// Connect to the Socket.IO server.
-			// The connection URL has the following format:
-			//	   http[s]://<domain>:<port>[/<namespace>]
-			var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
-			// Event handler for new connections.
-			// The callback function is invoked when a connection with the
-			// server is established.
-			socket.on('connect', function() {
-				socket.emit('my_event', {data: 'I\'m connected!'});
-			});
-			// Event handler for server sent data.
-			// The callback function is invoked whenever the server emits data
-			// to the client. The data is then displayed in the "Received"
-			// section of the page.
-			socket.on('my_response', function(msg) {
-				$('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
-			});
-			
-			socket.on('add_to_graph', function(msg) {
-				$('#dashboard').flowchart('createOperator', msg.data.title + '_1', msg.data);
-			});
-			// Interval function that tests message latency by sending a "ping"
-			// message. The server then responds with a "pong" message and the
-			// round trip time is measured.
-			var ping_pong_times = [];
-			var start_time;
-			window.setInterval(function() {
-				start_time = (new Date).getTime();
-				socket.emit('my_ping');
-			}, 1000);
-			// Handler for the "pong" message. When the pong is received, the
-			// time from the ping is stored, and the average of the last 30
-			// samples is average and displayed.
-			socket.on('my_pong', function() {
-				var latency = (new Date).getTime() - start_time;
-				ping_pong_times.push(latency);
-				ping_pong_times = ping_pong_times.slice(-30); // keep last 30 samples
-				var sum = 0;
-				for (var i = 0; i < ping_pong_times.length; i++)
-					sum += ping_pong_times[i];
-				$('#ping-pong').text(Math.round(10 * sum / ping_pong_times.length) / 10);
-			});
-			// Handlers for the different forms in the page.
-			// These accept data from the user and send it to the server in a
-			// variety of ways
-			$('form#emit').submit(function(event) {
-				socket.emit('my_event', {data: $('#emit_data').val()});
-				return false;
-			});
-			$('form#broadcast').submit(function(event) {
-				socket.emit('my_broadcast_event', {data: $('#broadcast_data').val()});
-				return false;
-			});
-			$('form#disconnect').submit(function(event) {
-				socket.emit('disconnect_request');
-				return false;
-			});
-			$('form#add_trigger').submit(function(event) {
-				socket.emit('add_node', {data: 'trigger'})
-				return false;
-			});
-			$('form#add_action').submit(function(event) {
-				socket.emit('add_node', {data: 'action'})
-				return false;
-			});
-		});
-	</script>
-	<script type="text/javascript" src="static/js/event-graph.js"></script>
-	
-	<!-- Custom styles for this template -->
-	<link href="static/css/jquery.flowchart.min.css" rel="stylesheet">
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+  <meta http-equiv="Pragma" content="no-cache"/>
+  <meta http-equiv="Expires" content="0"/>
+  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+
+  <title>Prop Controller</title>
+
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
+  <!-- CSS Files -->
+  <link href="static/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="static/css/light-bootstrap-dashboard.css?v=2.0.1" rel="stylesheet" />
 </head>
+
 <body>
-	<h1>Flask-SocketIO Test</h1>
-	<p>Async mode is: <b>{{ async_mode }}</b></p>
-	<p>Average ping/pong latency: <b><span id="ping-pong"></span>ms</b></p>
-	<h2>Send:</h2>
-	<form id="emit" method="POST" action='#'>
-		<input type="text" name="emit_data" id="emit_data" placeholder="Message">
-		<input type="submit" value="Echo">
-	</form>
-	<form id="broadcast" method="POST" action='#'>
-		<input type="text" name="broadcast_data" id="broadcast_data" placeholder="Message">
-		<input type="submit" value="Broadcast">
-	</form>
-	<form id="disconnect" method="POST" action="#">
-		<input type="submit" value="Disconnect">
-	</form>
-	<form id="add_trigger" method="POST" action="#">
-		<input type="submit" value = "Add Trigger">
-	</form>
-	<form id="add_action" method="POST" action="#">
-		<input type="submit" value = "Add Action">
-	</form>
-	<div id="dashboard" style="height:300px"></div>
-	<h2>Receive:</h2>
-	<div id="log"></div>
+  <div class="wrapper">
+    <div class="sidebar" data-color="purple">
+      <div class="sidebar-wrapper">
+        <div class="logo"><a href="#" class="simple-text">Prop Controller</a></div>
+        <ul class="nav">
+          <li class="nav-item active">
+            <a class="nav-link" href="/">
+              <i class="nc-icon nc-grid-45"></i>
+              <p>Controllers</p>
+            </a>
+          </li>
+          <li>
+            <a class="nav-link" href="/dashboard">
+              <i class="nc-icon nc-notes"></i>
+              <p>Dashboard</p>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="main-panel">
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg" color-on-scroll="500">
+        <div class=" container-fluid  ">
+          <a class="navbar-brand" href="#"> Controllers </a>
+          <button href="" class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-bar burger-lines"></span>
+            <span class="navbar-toggler-bar burger-lines"></span>
+            <span class="navbar-toggler-bar burger-lines"></span>
+          </button>
+          <div class="collapse navbar-collapse justify-content-end" id="navigation">
+            <ul class="navbar-nav ml-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span class="no-icon">Account</span>
+                </a>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <span class="no-icon">Dropdown</span>
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                  <a class="dropdown-item" href="#">Action</a>
+                  <a class="dropdown-item" href="#">Another action</a>
+                  <a class="dropdown-item" href="#">Something</a>
+                  <a class="dropdown-item" href="#">Something else here</a>
+                  <div class="divider"></div>
+                  <a class="dropdown-item" href="#">Separated link</a>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link">
+                  <span class="no-icon">Log out</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <!-- End Navbar -->
+      <div class="content" style="height:1000px">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="card-deck">
+              {% for c in controllers %}
+              <div class="card">
+                <div class="card-header">
+                  <h4 class="card-title">{{ c.name }}</h4>
+                </div>
+                <div class="card-body">
+                  <div class="table-full-width">
+                    <table class="table">
+                      <tbody>
+                        <tr>
+                          <td>INPUT</td>
+                          <td class="text-right">Trigger On:</td>
+                          <td><input type="checkbox" class="triggerState" data-toggle="switch" checked="" data-on-color="orange" data-off-color="orange" data-on-label="HIGH" data-off-label="LOW"></td>
+                        </tr>
+                        <tr>
+                          <td>OUTA</td>
+                          <td class="text-right">Default State:</td>
+                          <td><input type="checkbox" data-toggle="switch" data-on-color="primary" data-off-color="primary"></td>
+                        </tr>
+                        <tr>
+                          <td>OUTB</td>
+                          <td class="text-right">Default State:</td>
+                          <td><input type="checkbox" data-toggle="switch" data-on-color="primary" data-off-color="primary"></td>
+                        </tr>
+                        <tr>
+                          <td>OUTC</td>
+                          <td class="text-right">Default State:</td>
+                          <td><input type="checkbox" data-toggle="switch" data-on-color="primary" data-off-color="primary"></td>
+                        </tr>
+                        <tr>
+                          <td>OUTD</td>
+                          <td>Default State</td>
+                          <td><input type="checkbox" data-toggle="switch" data-on-color="primary" data-off-color="primary"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class-"card-footer">
+                  <hr>
+                  <div class="card-footer stats">Status:&nbsp<span id="{{ c.id }}-status">Disconnected</span></div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          <footer class="footer fixed-bottom">
+            <div class="container">
+            </div>
+          </footer>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--   Core JS Files   -->
+  <script src="static/js/core/jquery.3.2.1.min.js" type="text/javascript"></script>
+  <script src="static/js/core/popper.min.js" type="text/javascript"></script>
+  <script src="static/js/core/bootstrap.min.js" type="text/javascript"></script>
+  <script src="static/js/core/jquery-ui.min.js"></script>
+  <script src="static/js/core/socket.io.slim.js"></script>
+
+  <!--  Plugin for Switches, full documentation here: http://www.jque.re/plugins/version3/bootstrap.switch/ -->
+  <script src="static/js/plugins/bootstrap-switch.js"></script>
+
+  <!--  Notifications Plugin    -->
+  <script src="static/js/plugins/bootstrap-notify.js"></script>
+
+  <!-- Control Center for Light Bootstrap Dashboard: scripts for the example pages etc -->
+  <script src="static/js/light-bootstrap-dashboard.js?v=2.0.1" type="text/javascript"></script>
+
+  <!-- Other JavaScript -->
+  <script src="static/js/main.js"></script>
 </body>
+
 </html>

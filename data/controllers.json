@@ -1,0 +1,18 @@
+[{
+  "id": "c001",
+  "name": "Controller 1",
+  "in1": "HIGH",
+  "outA": "LOW",
+  "outB": "LOW",
+  "outC": "LOW",
+  "outD": "LOW"
+},
+{
+  "id": "c002",
+  "name": "Controller 2",
+  "in1": "HIGH",
+  "outA": "LOW",
+  "outB": "LOW",
+  "outC": "LOW",
+  "outD": "LOW"
+}]

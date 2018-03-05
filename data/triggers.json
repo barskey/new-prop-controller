@@ -1,0 +1,21 @@
+[{
+  "id": "t001",
+  "name": "30s Timer",
+  "type": "Timer",
+  "param1": "5",
+  "param2": ""
+},
+{
+  "id": "t002",
+  "name": "Interval",
+  "type": "Every 5s",
+  "param1": "5",
+  "param2": ""
+},
+{
+  "id": "t003",
+  "name": "Random",
+  "type": "Randomly",
+  "param1": "1",
+  "param2": "3"
+}]

@@ -1,32 +1,14 @@
 $(document).ready(function() {
-	var data = {
-		operatorTypes: {
-			trigger: {
-				title: 'Trigger',
-				inputs: {},
-				outputs: {
-					label: 'Trigger'
-				},
-			},
-			action: {
-				title: 'Action',
-				inputs: {
-					in1: {
-						label: 'In'
-					}
-				},
-				outputs: {
-					out1: {
-						label: 'After'
-					}
-				}
-			}
-		}
-	};
-	
+	var data = {};
+
 	$('#dashboard').flowchart({
-		data: data,
-		multipleLinksOnInput: true,
-		multipleLinksOnOutput: true
+		data: data
 	});
 });
+
+function addTrigger(trigger) {
+	var newli = $('<li></li>').addClass('list-group-item');
+	newli.text(trigger['triggerName']);
+	newli.attr('id', 'my_id');
+	$('#triggerList').append(newli);
+}
