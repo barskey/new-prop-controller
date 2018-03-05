@@ -64,7 +64,6 @@ $(document).ready(function() {
     return false;
   });
   $('form#addTrigger').submit(function(event) {
-    console.log("submit addTrigger");
     socket.emit('add_trigger', {data: $('form#addTrigger').serializeArray()});
     return false;
   });
@@ -76,7 +75,6 @@ $(document).ready(function() {
 
 //------------------------- Select Change Handlers --------------------------//
 $( '#triggerType' ).change( function() {
-  console.log($(this).val());
   $( '#addTrigger' ).find( ".triggerInterval" ).addClass( "d-none" );
   $( '#addTrigger' ).find( ".triggerRandom" ).addClass( "d-none" );
   $( '#addTrigger' ).find( ".triggerInput" ).addClass( "d-none" );
@@ -85,7 +83,6 @@ $( '#triggerType' ).change( function() {
 });
 
 $( '#actionType' ).change( function() {
-  console.log($(this).val());
   $( '#addAction' ).find( ".actionOutput" ).addClass( "d-none" );
   $( '#addAction' ).find( ".actionSound" ).addClass( "d-none" );
   var type = $( this ).find( "option:selected" ).val();
