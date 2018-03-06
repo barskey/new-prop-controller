@@ -1,5 +1,16 @@
 $(document).ready(function() {
   $('#dashboardMenu').addClass('active');
+  
+  $('#triggerMenu').collapse('show');
+  
+  $('#editTrigger').BootSideMenu({
+	side: 'right',
+	pushBody: false,
+	remember: false,
+	autoClose: true,
+	width: '280px',
+	duration: 500
+  });
 
   var data = {};
 

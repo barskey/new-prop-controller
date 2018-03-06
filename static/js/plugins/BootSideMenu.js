@@ -26,9 +26,9 @@
             pushBody: true,
             closeOnClick: true,
             icons: {
-                left: 'glyphicon glyphicon-chevron-left',
-                right: 'glyphicon glyphicon-chevron-right',
-                down: 'glyphicon glyphicon-chevron-down'
+                left: 'fas fa-angle-double-left',
+                right: 'fas fa-angle-double-right',
+                down: 'fas fa-angle-double-down'
             },
             theme: 'default',
             width: "15%",
