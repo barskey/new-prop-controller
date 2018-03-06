@@ -1,162 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
+<!-- extend from base layout -->
+{% extends "base.html" %}
 
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
-  <meta http-equiv="Pragma" content="no-cache"/>
-  <meta http-equiv="Expires" content="0"/>
-  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+{% block content %}
+<!-- Page specific JavaScript -->
+<script src="static/js/controllers.js"></script>
 
-  <title>Prop Controller</title>
-
-  <!--     Fonts and icons     -->
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
-  <!-- CSS Files -->
-  <link href="static/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="static/css/light-bootstrap-dashboard.css?v=2.0.1" rel="stylesheet" />
-</head>
-
-<body>
-  <div class="wrapper">
-    <div class="sidebar" data-color="purple">
-      <div class="sidebar-wrapper">
-        <div class="logo"><a href="#" class="simple-text">Prop Controller</a></div>
-        <ul class="nav">
-          <li class="nav-item active">
-            <a class="nav-link" href="/">
-              <i class="nc-icon nc-grid-45"></i>
-              <p>Controllers</p>
-            </a>
-          </li>
-          <li>
-            <a class="nav-link" href="/dashboard">
-              <i class="nc-icon nc-notes"></i>
-              <p>Dashboard</p>
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
-    <div class="main-panel">
-      <!-- Navbar -->
-      <nav class="navbar navbar-expand-lg" color-on-scroll="500">
-        <div class=" container-fluid  ">
-          <a class="navbar-brand" href="#"> Controllers </a>
-          <button href="" class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-bar burger-lines"></span>
-            <span class="navbar-toggler-bar burger-lines"></span>
-            <span class="navbar-toggler-bar burger-lines"></span>
-          </button>
-          <div class="collapse navbar-collapse justify-content-end" id="navigation">
-            <ul class="navbar-nav ml-auto">
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <span class="no-icon">Account</span>
-                </a>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <span class="no-icon">Dropdown</span>
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                  <a class="dropdown-item" href="#">Action</a>
-                  <a class="dropdown-item" href="#">Another action</a>
-                  <a class="dropdown-item" href="#">Something</a>
-                  <a class="dropdown-item" href="#">Something else here</a>
-                  <div class="divider"></div>
-                  <a class="dropdown-item" href="#">Separated link</a>
-                </div>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link">
-                  <span class="no-icon">Log out</span>
-                </a>
-              </li>
-            </ul>
+<div class="container-fluid">
+  <div class="row">
+    <div class="card-deck">
+      {% for c in controllers %}
+      <div class="card">
+        <div class="card-header bg-info">
+          <h5 class="text-white">{{ c.name }}</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-full-width">
+            <table class="table">
+              <tbody>
+                <tr>
+                  <td class="align-middle">INPUT</td>
+                  <td class="text-right align-middle">Trigger when:</td>
+                  <td class="align-middle text-center"><input type="checkbox" class="triggerState" data-toggle="toggle" checked="" data-onstyle="info" data-on="HIGH" data-off="LOW" data-size="small"></td>
+                </tr>
+                <tr>
+                  <td class="align-middle">OUTA</td>
+                  <td class="text-right align-middle">Default State:</td>
+                  <td class="align-middle text-center"><input type="checkbox" data-toggle="toggle" data-onstyle="info" data-size="small"></td>
+                </tr>
+                <tr>
+                  <td class="align-middle">OUTB</td>
+                  <td class="text-right align-middle">Default State:</td>
+                  <td class="align-middle text-center"><input type="checkbox" data-toggle="toggle" data-onstyle="info" data-size="small"></td>
+                </tr>
+                <tr>
+                  <td class="align-middle">OUTC</td>
+                  <td class="text-right align-middle">Default State:</td>
+                  <td class="align-middle text-center"><input type="checkbox" data-toggle="toggle" data-onstyle="info" data-size="small"></td>
+                </tr>
+                <tr>
+                  <td class="align-middle">OUTD</td>
+                  <td class="align-middle">Default State</td>
+                  <td class="align-middle text-center"><input type="checkbox" data-toggle="toggle" data-onstyle="info" data-size="small"></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
-      </nav>
-      <!-- End Navbar -->
-      <div class="content" style="height:1000px">
-        <div class="container-fluid">
-          <div class="row">
-            <div class="card-deck">
-              {% for c in controllers %}
-              <div class="card">
-                <div class="card-header">
-                  <h4 class="card-title">{{ c.name }}</h4>
-                </div>
-                <div class="card-body">
-                  <div class="table-full-width">
-                    <table class="table">
-                      <tbody>
-                        <tr>
-                          <td>INPUT</td>
-                          <td class="text-right">Trigger On:</td>
-                          <td><input type="checkbox" class="triggerState" data-toggle="switch" checked="" data-on-color="orange" data-off-color="orange" data-on-label="HIGH" data-off-label="LOW"></td>
-                        </tr>
-                        <tr>
-                          <td>OUTA</td>
-                          <td class="text-right">Default State:</td>
-                          <td><input type="checkbox" data-toggle="switch" data-on-color="primary" data-off-color="primary"></td>
-                        </tr>
-                        <tr>
-                          <td>OUTB</td>
-                          <td class="text-right">Default State:</td>
-                          <td><input type="checkbox" data-toggle="switch" data-on-color="primary" data-off-color="primary"></td>
-                        </tr>
-                        <tr>
-                          <td>OUTC</td>
-                          <td class="text-right">Default State:</td>
-                          <td><input type="checkbox" data-toggle="switch" data-on-color="primary" data-off-color="primary"></td>
-                        </tr>
-                        <tr>
-                          <td>OUTD</td>
-                          <td>Default State</td>
-                          <td><input type="checkbox" data-toggle="switch" data-on-color="primary" data-off-color="primary"></td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                <div class-"card-footer">
-                  <hr>
-                  <div class="card-footer stats">Status:&nbsp<span id="{{ c.id }}-status">Disconnected</span></div>
-                </div>
-              </div>
-              {% endfor %}
-            </div>
-          </div>
-          <footer class="footer fixed-bottom">
-            <div class="container">
-            </div>
-          </footer>
+        <div class-"card-footer alert-info">
+          <div class="card-footer stats">Status:&nbsp<span id="{{ c.id }}-status">Disconnected</span></div>
         </div>
       </div>
+      {% endfor %}
     </div>
   </div>
+  <footer class="footer fixed-bottom">
+    <div class="container">
+    </div>
+  </footer>
+</div>
 
-  <!--   Core JS Files   -->
-  <script src="static/js/core/jquery.3.2.1.min.js" type="text/javascript"></script>
-  <script src="static/js/core/popper.min.js" type="text/javascript"></script>
-  <script src="static/js/core/bootstrap.min.js" type="text/javascript"></script>
-  <script src="static/js/core/jquery-ui.min.js"></script>
-  <script src="static/js/core/socket.io.slim.js"></script>
-
-  <!--  Plugin for Switches, full documentation here: http://www.jque.re/plugins/version3/bootstrap.switch/ -->
-  <script src="static/js/plugins/bootstrap-switch.js"></script>
-
-  <!--  Notifications Plugin    -->
-  <script src="static/js/plugins/bootstrap-notify.js"></script>
-
-  <!-- Control Center for Light Bootstrap Dashboard: scripts for the example pages etc -->
-  <script src="static/js/light-bootstrap-dashboard.js?v=2.0.1" type="text/javascript"></script>
-
-  <!-- Other JavaScript -->
-  <script src="static/js/main.js"></script>
-</body>
-
-</html>
+{% endblock %}

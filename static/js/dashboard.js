@@ -1,4 +1,6 @@
 $(document).ready(function() {
+  $('#dashboardMenu').addClass('active');
+
   var data = {};
 
   $('#dashboard').flowchart({

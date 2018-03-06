@@ -1,4 +1,5 @@
 $(document).ready(function() {
+  $('#controllerMenu').addClass('active');
   // An application can open a connection on multiple namespaces, and
   // Socket.IO will multiplex all those connections on a single
   // physical channel. If you don't care about multiple channels, you
@@ -19,11 +20,7 @@ $(document).ready(function() {
   // to the client. The data is then displayed in the "Received"
   // section of the page.
   socket.on('my_response', function(msg) {
-    $('#log').text('Received #' + msg.count + ': ' + msg.data).html());
-  });
-
-  socket.on('add_to_graph', function(msg) {
-    $('#dashboard').flowchart('addOperator', msg.data);
+    $('#log').text('Received #' + msg.count + ': ' + msg.data).html();
   });
   // Interval function that tests message latency by sending a "ping"
   // message. The server then responds with a "pong" message and the
@@ -57,13 +54,4 @@ $(document).ready(function() {
     socket.emit('my_broadcast_event', {data: $('#broadcast_data').val()});
     return false;
   });
-  $('form#triggerForm').submit(function(event) {
-    socket.emit('add_trigger', {data: $('form#triggerForm').serializeArray()});
-    return false;
-  });
-  $('form#actionForm').submit(function(event) {
-    socket.emit('add_action', {data: $('form#actionForm').serializeArray()});
-    return false;
-  });
-
 });
