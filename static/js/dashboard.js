@@ -1,9 +1,10 @@
-$(document).ready(function() {
-  $('#dashboardMenu').addClass('active');
+$( document ).ready( function() {
+  $( '#dashboardMenu' ).addClass( 'active' );
 
-  $('#triggerMenu').collapse('show');
+  $( '#triggerMenu' ).collapse( 'show' );
+  $( '#actionMenu' ).collapse( 'show' );
 
-  $('#editTrigger').BootSideMenu({
+  $( '#editTrigger' ).BootSideMenu({
   	side: 'right',
   	pushBody: false,
   	remember: false,
@@ -13,7 +14,10 @@ $(document).ready(function() {
     closeOnClick: false
   });
 
-  var data = {};
+  var data = {
+	  operators: {},
+	  links: {}
+  };
 
   $('#dashboard').flowchart({
     data: data
@@ -43,7 +47,7 @@ $(document).ready(function() {
   });
 
   socket.on('add_to_graph', function(msg) {
-    $('#dashboard').flowchart('addOperator', msg.data);
+    console.log($('#dashboard').flowchart('addOperator', msg.data));
   });
   // Interval function that tests message latency by sending a "ping"
   // message. The server then responds with a "pong" message and the
@@ -89,21 +93,14 @@ $(document).ready(function() {
   //------------------------- Click Handlers ----------------------------------//
   $( 'a.add-trigger' ).click( function() {
     var type = $( this ).attr( 'data-type' );
-    var node = {
-      top: 20,
-      left: 20,
-      properties: {
-        title: type,
-        inputs: {},
-        outputs: {
-          out1: {
-            label: 'Start'
-          }
-        }
-      }
-    }
-    socket.emit('add_trigger', {data: node});
+    socket.emit('add_trigger', {data: type});
     $( '#editTrigger' ).BootSideMenu.open();
+  });
+
+  $( 'a.add-action' ).click( function() {
+    var type = $( this ).attr( 'data-type' );
+    socket.emit('add_action', {data: type});
+    //$( '#editAction' ).BootSideMenu.open();
   });
 
   //------------------------- Select Change Handlers --------------------------//

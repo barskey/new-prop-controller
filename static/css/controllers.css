@@ -153,3 +153,46 @@ body>.navbar-collapse .nav li.separator+.nav-item {
 
 .border-top { border-top: 1px solid #e5e5e5; }
 .border-bottom { border-bottom: 1px solid #e5e5e5; }
+
+/* Flowchart Operators */
+
+/* All Inputs */
+.flowchart-operator.trigger-interval .flowchart-operator-title,
+.flowchart-operator.trigger-random .flowchart-operator-title,
+.flowchart-operator.trigger-input .flowchart-operator-title
+ {
+    background: #ff9933;
+}
+
+.flowchart-operator.trigger-random,
+.flowchart-operator.trigger-interval,
+.flowchart-operator.trigger-input {
+    border: 1px solid #ff6600;
+}
+
+/* Inputs */
+.flowchart-operator.trigger-input {
+    background: #f8d7da;
+}
+
+.flowchart-operator.trigger-random {
+    background: #ffcc99;
+}
+
+.flowchart-operator.trigger-interval {
+    background: #fff3cd;
+}
+
+/* All */
+.flowchart-operator .flowchart-operator-title {
+	color: #ffffff;
+}
+
+.flowchart-operator.hover {
+    border-color: #ffc107;
+}
+
+.flowchart-operator.selected {
+	border: 2px solid;
+    border-color: #28a745;
+}

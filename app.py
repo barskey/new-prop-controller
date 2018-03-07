@@ -14,6 +14,8 @@ socketio = SocketIO(app, async_mode=async_mode)
 thread = None
 thread_lock = Lock()
 
+posx, posy = 20, 20 # starting position of graph nodes
+
 def background_thread():
 	"""Example of how to send server generated events to clients."""
 	count = 0
@@ -77,19 +79,105 @@ def test_connect():
 
 @socketio.on('add_trigger')
 def add_trigger(msg):
-	print ('emitting add_to_graph')
-	emit('add_to_graph', {'data': msg['data']})
+	global posx, posy
+	types = {
+		'interval':  {
+			'top': posx,
+			'left': posy,
+				'properties': {
+				'title': 'Fixed Interval',
+				'class': 'trigger-interval',
+				'inputs': {},
+				'outputs': {
+					'out1': {'label': 'After' }
+				}
+			}
+		},
+		'random':  {
+			'top': posx,
+			'left': posy,
+			'properties': {
+				'title': 'Random Interval',
+				'class': 'trigger-random',
+				'inputs': {},
+				'outputs': {
+					'out1': {'label': 'Randomly' }
+				}
+			}
+		},
+		'input':  {
+			'top': posx,
+			'left': posy,
+			'properties': {
+				'title': 'Input Trigger',
+				'class': 'trigger-input',
+				'inputs': {},
+				'outputs': {
+					'out1': {'label': 'On HI' },
+					'out2': {'label': 'On LO' }
+				}
+			}
+		}
+	}
+	posx = posx + 20
+	posy = posy + 20
+	print ('emitting add_to_graph', posx, posy)
+	emit('add_to_graph', {'data': types[msg['data']]})
 
 
 @socketio.on('add_action')
 def add_action(msg):
-	result = makeDict(msg['data'])
-	op = {
-		'top': 20,
-		'left': 20,
-		'properties': { 'title': result['name'], 'inputs': {'in1': {'label': 'In'}}, 'outputs': {'out1': {'label': 'Out'}}}
+	global posx, posy
+	types = {
+		'output': {
+			'top': posx,
+			'left': posy,
+			'properties': {
+				'title': 'Set Output State',
+				'class': 'action-input',
+				'inputs': {
+					'hi': { 'label': 'Set HI' },
+					'low': { 'label': 'Set LOW' }
+				},
+				'outputs': {
+					'after': { 'label': 'After Set' }
+				}
+			}
+		},
+		'toggle': {
+			'top': posx,
+			'left': posy,
+			'properties': {
+				'title': 'Toggle Output State',
+				'class': 'action-toggle',
+				'inputs': {
+					'in': { 'label': 'In' }
+				},
+				'outputs': {
+					'after': { 'label': 'After Toggle' }
+				}
+			}
+		},
+		'sound': {
+			'top': posx,
+			'left': posy,
+				'properties': {
+				'title': 'Play Sound',
+				'class': 'action-sound',
+				'inputs': {
+					'in': { 'label': 'In' }
+				},
+				'outputs': {
+					'after': { 'label': 'After Sound' }
+				}
+			}
+		}	
 	}
-	emit('add_to_graph', {'data': op})
+	
+	posx = posx + 20
+	posy = posy + 20
+	print ('emitting add_to_graph', posx, posy)
+	emit('add_to_graph', {'data': types[msg['data']]})
 
 
 def makeDict(array):
