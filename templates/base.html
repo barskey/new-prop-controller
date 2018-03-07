@@ -31,7 +31,7 @@
 
   <!-- Additional CSS -->
   <link href="static/css/bootstrap-toggle.min.css" rel="stylesheet" />
-  <link href="static/css/pc-main.css" rel="stylesheet" />
+  <link href="static/css/controllers.css" rel="stylesheet" />
   <link href="static/css/BootSideMenu.css" rel="stylesheet" />
 </head>
 
@@ -47,7 +47,7 @@
 
   <div class="container-fluid">
     <div class="row">
-      <nav class="col-md-2 d-none d-md-block pc-purple sidebar">
+      <nav class="col-md-3 d-none d-md-block pc-purple sidebar">
         <div class="sidebar-sticky">
           <ul class="nav flex-column">
             <li id="controllerMenu" class="nav-item">
@@ -56,13 +56,13 @@
             <li id="dashboardMenu" class="nav-item">
               <a class="nav-link" href="/dashboard"><i class="fas fa-table fa-fw"></i><p>Dashboard</p></a>
             </li>
-			<div class="nav-item collapse" id="triggerMenu">
-				<ul class="nav m-3">
-					<li class="nav-item"><p class="nav-link text-right"><i class="fas fa-stopwatch fa-fw"></i>ADD INTERVAL</p></li>
-					<li class="nav-item"><p class="nav-link text-right"><i class="fas fa-random fa-fw"></i>ADD RANDOM</p></li>
-					<li class="nav=item"><p class="nav-link text-right"><i class="fas fa-sign-in-alt fa-fw"></i>ADD INPUT</p></li>
-				</ul>
-			</div>
+            <div class="nav-item collapse" id="triggerMenu">
+              <ul class="nav flex-column m-3">
+                <li class="nav-item"><a class="nav-link add-trigger" href="#" data-type="interval"><i class="fas fa-stopwatch fa-fw"></i>ADD INTERVAL</a></li>
+                <li class="nav-item"><a class="nav-link add-trigger" href="#" data-type="random"><i class="fas fa-random fa-fw"></i>ADD RANDOM</a></li>
+                <li class="nav=item"><a class="nav-link add-trigger" href="#" data-type="input"><i class="fas fa-sign-in-alt fa-fw"></i>ADD INPUT</a></li>
+              </ul>
+            </div>
             <li id="statusMenu" class="nav-item">
               <a class="nav-link" href="#"><i class="fas fa-clipboard-list fa-fw"></i><p>Status</p></a>
             </li>
@@ -70,7 +70,7 @@
         </div>
       </nav>
 
-      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+      <main role="main" class="col-md-9 ml-sm-auto pt-3 px-4">
         {% block content %}{% endblock %}
       </main>
     </div>

@@ -5,20 +5,46 @@
 <!-- Page specific JavaScript -->
 <script src="static/js/dashboard.js"></script>
 
-<div id="dashboard"></div>
-<div id="editTrigger" class="card h-50 my-auto">
-	<div class="card-header">
-		<div class="header-text">Edit Trigger</div>
-	</div>
-	<div class="card-body">
-		<ul>
-			<li>Thing 1</li>
-			<li>Thing 2</li>
-			<li>Thing 3</li>
-		</ul>
+<div id="dashboard" style="height:90vh"></div>
+
+<!-- Sliding properties sidebar -->
+<div id="editTrigger" class="h-75 my-auto">
+	<div class="container">
+		<form class="form-inline" id="addTrigger">
+			<ul class="list-group list-group-flush">
+				<li class="list-group-item"><h5>Edit Properties</h5></li>
+				<li class="list-group-item">Name: &nbsp;
+					<input type="text" class="form-control" id="triggerName" name="name" placeholder="Trigger Name" style="width: 65%">
+				</li>
+				<li class="list-group-item">Type:&nbsp;
+					<select id="triggerType" class="custom-select" name="type" style="width: 65%">
+						<option value="Interval" selected>Interval</option>
+						<option value="Random">Random</option>
+						<option value="Input">Input</option>
+					</select>
+				</li>
+				<li class="list-group-item triggerInterval">Every:&nbsp;
+					<input type="text" class="form-control w-25" id="triggerParam1" name="param1"> seconds
+				</li>
+				<li class="list-group-item triggerRandom d-none">Bet:&nbsp;
+					<input type="text" class="form-control w-25" id="triggerParam1" name="param1">
+					&nbsp;and&nbsp;
+					<input type="text" class="form-control w-25" id="triggerParam2" name="param2">
+					&nbsp;secs
+				</li>
+				<li class="list-group-item triggerInput d-none">Input:&nbsp;
+					<select id="triggerInput" class="custom-select w-75" name="input">
+					</select>
+				</li>
+				<li class="list-group-item">
+					<button type="submit" class="btn btn-success">Save</button>
+					<button type="button" class="btn btn-danger float-right">Remove</button>
+				</li>
+			</ul>
+		</form>
 	</div>
 </div>
-	
+
 <!--          <span>&nbsp;Add Trigger</span>
 </a>
 <div class="dropdown-menu" aria-labelledby="triggerDropdownMenuLink">

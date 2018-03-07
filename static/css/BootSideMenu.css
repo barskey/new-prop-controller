@@ -183,12 +183,6 @@
     background-color: #FFFFFF;
 }
 
-.default a,
-.default a:hover,
-.default a:visited {
-    color: #337ab7;
-}
-
 .default.bootsidemenu-left,
 .default.bootsidemenu-right,
 .default.bootsidemenu-left > .toggler,
@@ -202,29 +196,6 @@
 
 .default.bootsidemenu-left > .toggler {
     border-left:0;
-}
-
-.default .list-group-item.active,
-.default .list-group-item.active:focus,
-.default .list-group-item.active:hover,
-.default .item.active:focus {
-    color: #FFFFFF;
-    background-color: #337ab7;
-    border-color: #337ab7;
-}
-
-.default a.list-group-item {
-    color: #555555;
-}
-
-.default a.list-group-item:focus,
-.default a.list-group-item:hover,
-.default button.list-group-item:focus,
-.default button.list-group-item:hover {
-    color: #ffffff;
-    text-decoration: none;
-    background-color: #337ab7;
-    border-color: #337ab7;
 }
 
 /*========== Theme Default ==========*/

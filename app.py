@@ -27,7 +27,7 @@ def background_thread():
 @app.route('/')
 def index():
 	controllers = json.load(open('data/controllers.json'))
-	return render_template('index.html', controllers=controllers)
+	return render_template('controllers.html', controllers=controllers)
 
 
 @app.route('/dashboard')
@@ -77,14 +77,8 @@ def test_connect():
 
 @socketio.on('add_trigger')
 def add_trigger(msg):
-	result = makeDict(msg['data'])
-	op = {
-		'top': 20,
-		'left': 20,
-		'properties': { 'title': result['name'], 'inputs': {}, 'outputs': {'out1': {'label': 'Start'}}}
-	}
 	print ('emitting add_to_graph')
-	emit('add_to_graph', {'data': op})
+	emit('add_to_graph', {'data': msg['data']})
 
 
 @socketio.on('add_action')

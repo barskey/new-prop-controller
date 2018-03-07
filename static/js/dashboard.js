@@ -1,15 +1,16 @@
 $(document).ready(function() {
   $('#dashboardMenu').addClass('active');
-  
+
   $('#triggerMenu').collapse('show');
-  
+
   $('#editTrigger').BootSideMenu({
-	side: 'right',
-	pushBody: false,
-	remember: false,
-	autoClose: true,
-	width: '280px',
-	duration: 500
+  	side: 'right',
+  	pushBody: false,
+  	remember: false,
+  	autoClose: true,
+  	width: '280px',
+  	duration: 300,
+    closeOnClick: false
   });
 
   var data = {};
@@ -84,21 +85,41 @@ $(document).ready(function() {
     socket.emit('add_action', {data: $('form#addAction').serializeArray()});
     return false;
   });
-});
 
-//------------------------- Select Change Handlers --------------------------//
-$( '#triggerType' ).change( function() {
-  $( '#addTrigger' ).find( ".triggerInterval" ).addClass( "d-none" );
-  $( '#addTrigger' ).find( ".triggerRandom" ).addClass( "d-none" );
-  $( '#addTrigger' ).find( ".triggerInput" ).addClass( "d-none" );
-  var type = $( this ).find( "option:selected" ).text();
-  $( '#addTrigger' ).find( ".trigger" + type ).removeClass( "d-none" );
-});
+  //------------------------- Click Handlers ----------------------------------//
+  $( 'a.add-trigger' ).click( function() {
+    var type = $( this ).attr( 'data-type' );
+    var node = {
+      top: 20,
+      left: 20,
+      properties: {
+        title: type,
+        inputs: {},
+        outputs: {
+          out1: {
+            label: 'Start'
+          }
+        }
+      }
+    }
+    socket.emit('add_trigger', {data: node});
+    $( '#editTrigger' ).BootSideMenu.open();
+  });
 
-$( '#actionType' ).change( function() {
-  $( '#addAction' ).find( ".actionOutput" ).addClass( "d-none" );
-  $( '#addAction' ).find( ".actionSound" ).addClass( "d-none" );
-  var type = $( this ).find( "option:selected" ).val();
-  console.log(type);
-  $( '#addAction' ).find( ".action" + type ).removeClass( "d-none" );
+  //------------------------- Select Change Handlers --------------------------//
+  $( '#triggerType' ).change( function() {
+    $( '#addTrigger' ).find( ".triggerInterval" ).addClass( "d-none" );
+    $( '#addTrigger' ).find( ".triggerRandom" ).addClass( "d-none" );
+    $( '#addTrigger' ).find( ".triggerInput" ).addClass( "d-none" );
+    var type = $( this ).find( "option:selected" ).text();
+    $( '#addTrigger' ).find( ".trigger" + type ).removeClass( "d-none" );
+  });
+
+  $( '#actionType' ).change( function() {
+    $( '#addAction' ).find( ".actionOutput" ).addClass( "d-none" );
+    $( '#addAction' ).find( ".actionSound" ).addClass( "d-none" );
+    var type = $( this ).find( "option:selected" ).val();
+    console.log(type);
+    $( '#addAction' ).find( ".action" + type ).removeClass( "d-none" );
+  });
 });

@@ -60,7 +60,6 @@ body>.navbar-collapse .nav li .nav-link p {
 
 .sidebar .nav li .nav-link svg,
 body>.navbar-collapse .nav li .nav-link svg {
-    font-size: 28px;
     margin-right: 15px;
     width: 30px;
     text-align: center;
@@ -82,7 +81,6 @@ body>.navbar-collapse .nav li:hover .nav-link {
 
 .sidebar .nav li.active .nav-link,
 body>.navbar-collapse .nav li.active .nav-link {
-    color: #FFFFFF;
     opacity: 1;
     background: rgba(255, 255, 255, 0.23);
 }
@@ -97,7 +95,6 @@ body>.navbar-collapse .nav li.separator {
 body>.navbar-collapse .nav li.separator+.nav-item {
     margin-top: 31px;
 }
-
 
 .sidebar .nav-link.active {
   color: #007bff;
