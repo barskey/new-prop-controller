@@ -1,10 +1,1 @@
-{
-  "C05": {
-    "test1": "test01",
-    "test2": "test02"
-  },
-  "C06": {
-    "test1": "test02",
-    "test2": "test03"
-  }
-}
+{"C54": {"input": "HI", "outB": "LO", "outC": "LO", "outD": "LO", "outA": "HI"}, "C50": {"input": "HI", "outB": "LO", "outC": "LO", "outD": "HI", "outA": "LO"}}

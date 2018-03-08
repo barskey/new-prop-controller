@@ -8,10 +8,10 @@
 <div class="container-fluid">
   <div class="row">
     <div class="card-deck">
-      {% for c in controllers %}
-      <div class="card">
+      {% for cid, data in controllers.items() %}
+      <div class="card" id="{{ cid }}">
         <div class="card-header bg-info">
-          <h5 class="text-white">{{ c.name }}</h5>
+          <h5 class="text-white">Controller {{ cid }}</h5>
         </div>
         <div class="card-body">
           <div class="table-full-width">
@@ -20,34 +20,34 @@
                 <tr>
                   <td class="align-middle">INPUT</td>
                   <td class="text-right align-middle">Pull-up/down:</td>
-                  <td class="align-middle text-center"><input type="checkbox" class="triggerState" data-toggle="toggle" checked="" data-onstyle="info" data-on="UP" data-off="DOWN" data-size="small"></td>
+                  <td class="align-middle text-center"><input type="checkbox" class="triggerState" data-toggle="toggle" {% if data.input == "HI" %}checked=""{% endif %} data-onstyle="info" data-on="UP" data-off="DOWN" data-size="small" data-port="input"></td>
                 </tr>
                 <tr>
                   <td class="align-middle">OUTA</td>
                   <td class="text-right align-middle">Default State:</td>
-                  <td class="align-middle text-center"><input type="checkbox" data-toggle="toggle" data-onstyle="info" data-size="small"></td>
+                  <td class="align-middle text-center"><input type="checkbox" data-toggle="toggle" {% if data.outA == "HI" %}checked=""{% endif %} data-onstyle="info" data-size="small" data-port="outA"></td>
                 </tr>
                 <tr>
                   <td class="align-middle">OUTB</td>
                   <td class="text-right align-middle">Default State:</td>
-                  <td class="align-middle text-center"><input type="checkbox" data-toggle="toggle" data-onstyle="info" data-size="small"></td>
+                  <td class="align-middle text-center"><input type="checkbox" data-toggle="toggle" {% if data.outB == "HI" %}checked=""{% endif %} data-onstyle="info" data-size="small" data-port="outB"></td>
                 </tr>
                 <tr>
                   <td class="align-middle">OUTC</td>
                   <td class="text-right align-middle">Default State:</td>
-                  <td class="align-middle text-center"><input type="checkbox" data-toggle="toggle" data-onstyle="info" data-size="small"></td>
+                  <td class="align-middle text-center"><input type="checkbox" data-toggle="toggle" {% if data.outC == "HI" %}checked=""{% endif %} data-onstyle="info" data-size="small" data-port="outC"></td>
                 </tr>
                 <tr>
                   <td class="align-middle">OUTD</td>
                   <td class="align-middle">Default State</td>
-                  <td class="align-middle text-center"><input type="checkbox" data-toggle="toggle" data-onstyle="info" data-size="small"></td>
+                  <td class="align-middle text-center"><input type="checkbox" data-toggle="toggle" {% if data.outD == "HI" %}checked=""{% endif %} data-onstyle="info" data-size="small" data-port="outD"></td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
         <div class-"card-footer alert-info">
-          <div class="card-footer stats">Status:&nbsp<span id="{{ c.id }}-status">Disconnected</span></div>
+          <div class="card-footer stats">Status:&nbsp<span id="{{ cid }}-status">Disconnected</span></div>
         </div>
       </div>
       {% endfor %}

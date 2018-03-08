@@ -50,9 +50,14 @@ def dashboard():
 	actions = {}
 	data = {}
 	inputs = []
-	for c in json.load(open('data/controllers.json')):
-		inputs.append((c['id']))
-	return render_template('dashboard.html', async_mode=socketio.async_mode, triggers=triggers, actions=actions, inputs=inputs, graphData=data)
+	outputs = []
+	for cid, data in json.load(open('data/controllers.json')).items():
+		inputs.append(cid)
+		outputs.append(data['outA'])
+		outputs.append(data['outB'])
+		outputs.append(data['outC'])
+		outputs.append(data['outD'])
+	return render_template('dashboard.html', async_mode=socketio.async_mode, triggers=triggers, actions=actions, inputs=inputs, outputs=outputs, graphData=data)
 
 @socketio.on('my_event')
 def test_message(message):
@@ -76,10 +81,6 @@ def sim_controller_ping():
 		if ping_thread is None:
 			ping_thread = socketio.start_background_task(target=controller_ping_thread)
 
-@socketio.on('my_ping')
-def ping_pong():
-	emit('my_pong')
-
 
 @socketio.on('connect')
 def test_connect():
@@ -93,14 +94,15 @@ def test_connect():
 
 @socketio.on('ping_received')
 def controller_connected(msg):
-	cid = msg['data']
+	cid = msg['data'].decode('utf-8')
 	controllers = json.load(open('data/controllers.json'))
-	print (controllers)
-	if controllers[cid] is None:
-		controllers[cid] = {'test': 'test2'}
+	if controllers.get(cid, None) is None:
+		controllers[cid] = {'input': 'HI', 'outA': 'LO', 'outB': 'LO', 'outC': 'LO', 'outD': 'LO'}
 		with open('data/controllers.json', 'w') as outfile:
 			json.dump(controllers, outfile)
+		#socketio.emit('add_controller, {}')
 		print ('Controller added.')
+
 
 @socketio.on('add_trigger')
 def add_trigger(msg):
@@ -203,6 +205,16 @@ def add_action(msg):
 	posy = posy + 20
 	print ('emitting add_to_graph', posx, posy)
 	emit('add_to_graph', {'data': types[msg['data']]})
+
+@socketio.on('update_controller')
+def update_controller(msg):
+	cid = msg['cid'].decode('utf-8')
+	port = msg['port'].decode('utf-8')
+	state = msg['val']
+	controllers = json.load(open('data/controllers.json'))
+	controllers[cid][port] = 'HI' if state else 'LO'
+	with open('data/controllers.json', 'w') as outfile:
+		json.dump(controllers, outfile)
 
 def makeDict(array):
 	obj = {}
