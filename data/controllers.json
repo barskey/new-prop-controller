@@ -1,18 +1,10 @@
-[{
-  "id": "C01",
-  "name": "Controller 1",
-  "in1": "HIGH",
-  "outA": "LOW",
-  "outB": "LOW",
-  "outC": "LOW",
-  "outD": "LOW"
-},
 {
-  "id": "C02",
-  "name": "Controller 2",
-  "in1": "HIGH",
-  "outA": "LOW",
-  "outB": "LOW",
-  "outC": "LOW",
-  "outD": "LOW"
-}]
+  "C05": {
+    "test1": "test01",
+    "test2": "test02"
+  },
+  "C06": {
+    "test1": "test02",
+    "test2": "test03"
+  }
+}

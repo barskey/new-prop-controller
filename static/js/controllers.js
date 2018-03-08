@@ -43,6 +43,11 @@ $(document).ready(function() {
       sum += ping_pong_times[i];
     $('#ping-pong').text(Math.round(10 * sum / ping_pong_times.length) / 10);
   });
+
+  socket.on('controller_ping', function(msg) {
+    socket.emit('ping_received', {data: msg});
+  });
+
   // Handlers for the different forms in the page.
   // These accept data from the user and send it to the server in a
   // variety of ways
@@ -50,8 +55,13 @@ $(document).ready(function() {
     socket.emit('my_event', {data: $('#emit_data').val()});
     return false;
   });
+
   $('form#broadcast').submit(function(event) {
     socket.emit('my_broadcast_event', {data: $('#broadcast_data').val()});
     return false;
+  });
+
+  $( '#addController' ).click( function() {
+    socket.emit('sim_controller_connected');
   });
 });

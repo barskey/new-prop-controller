@@ -1,7 +1,7 @@
 from threading import Lock
 from flask import Flask, render_template, session, request, url_for
 from flask_socketio import SocketIO, emit
-import json
+import json, random
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
@@ -13,6 +13,8 @@ app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
 thread_lock = Lock()
+ping_thread = None
+ping_thread_lock = Lock()
 
 posx, posy = 20, 20 # starting position of graph nodes
 
@@ -24,6 +26,14 @@ def background_thread():
 		count += 1
 		print ('emitting my_response')
 		socketio.emit('my_response', {'data': 'Server generated event', 'count': count})
+
+def controller_ping_thread():
+	"""Used to simulate receiving ping from connected controller every second"""
+	cid = 'C' + str(int(random.random() * 100))
+	while True:
+		socketio.sleep(1)
+		print ('Controller %s ping' % cid)
+		socketio.emit('controller_ping', {'data': cid})
 
 
 @app.route('/')
@@ -59,13 +69,12 @@ def test_broadcast_message(message):
 		 broadcast=True)
 
 
-@socketio.on('disconnect_request')
-def disconnect_request():
-	session['receive_count'] = session.get('receive_count', 0) + 1
-	emit('my_response',
-		 {'data': 'Disconnected!', 'count': session['receive_count']})
-	disconnect()
-
+@socketio.on('sim_controller_connected')
+def sim_controller_ping():
+	global ping_thread
+	with ping_thread_lock:
+		if ping_thread is None:
+			ping_thread = socketio.start_background_task(target=controller_ping_thread)
 
 @socketio.on('my_ping')
 def ping_pong():
@@ -81,6 +90,17 @@ def test_connect():
 			thread = socketio.start_background_task(target=background_thread)
 	emit('my_response', {'data': 'Connected', 'count': 0})
 
+
+@socketio.on('ping_received')
+def controller_connected(msg):
+	cid = msg['data']
+	controllers = json.load(open('data/controllers.json'))
+	print (controllers)
+	if controllers[cid] is None:
+		controllers[cid] = {'test': 'test2'}
+		with open('data/controllers.json', 'w') as outfile:
+			json.dump(controllers, outfile)
+		print ('Controller added.')
 
 @socketio.on('add_trigger')
 def add_trigger(msg):
