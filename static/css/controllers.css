@@ -170,6 +170,19 @@ body>.navbar-collapse .nav li.separator+.nav-item {
     border: 1px solid #ff6600;
 }
 
+/* All Outputs */
+.flowchart-operator.action-output .flowchart-operator-title,
+.flowchart-operator.action-toggle .flowchart-operator-title,
+.flowchart-operator.action-sound .flowchart-operator-title {
+  background: #17a2b8;
+}
+
+.flowchart-operator.action-output,
+.flowchart-operator.action-toggle,
+.flowchart-operator.action-sound {
+  border: 1px solid #6c757d;
+}
+
 /* Inputs */
 .flowchart-operator.trigger-input {
     background: #f8d7da;
@@ -183,6 +196,19 @@ body>.navbar-collapse .nav li.separator+.nav-item {
     background: #fff3cd;
 }
 
+/* Actions */
+.flowchart-operator.action-output {
+  background: #d1ecf1;
+}
+
+.flowchart-operator.action-toggle {
+  background: #cce5ff;
+}
+
+.flowchart-operator.action-sound {
+  background: #d4edda;
+}
+
 /* All */
 .flowchart-operator .flowchart-operator-title {
 	color: #ffffff;
@@ -194,5 +220,5 @@ body>.navbar-collapse .nav li.separator+.nav-item {
 
 .flowchart-operator.selected {
 	border: 2px solid;
-    border-color: #28a745;
+  border-color: #999999;
 }

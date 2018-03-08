@@ -1,5 +1,5 @@
 [{
-  "id": "c001",
+  "id": "C01",
   "name": "Controller 1",
   "in1": "HIGH",
   "outA": "LOW",
@@ -8,7 +8,7 @@
   "outD": "LOW"
 },
 {
-  "id": "c002",
+  "id": "C02",
   "name": "Controller 2",
   "in1": "HIGH",
   "outA": "LOW",

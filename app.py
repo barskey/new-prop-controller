@@ -34,10 +34,15 @@ def index():
 
 @app.route('/dashboard')
 def dashboard():
+	global posx, posy
+	posx, posy = 20, 20
 	triggers = {}
 	actions = {}
 	data = {}
-	return render_template('dashboard.html', async_mode=socketio.async_mode, triggers=triggers, actions=actions, graphData=data)
+	inputs = []
+	for c in json.load(open('data/controllers.json')):
+		inputs.append((c['id']))
+	return render_template('dashboard.html', async_mode=socketio.async_mode, triggers=triggers, actions=actions, inputs=inputs, graphData=data)
 
 @socketio.on('my_event')
 def test_message(message):
@@ -134,7 +139,7 @@ def add_action(msg):
 			'left': posy,
 			'properties': {
 				'title': 'Set Output State',
-				'class': 'action-input',
+				'class': 'action-output',
 				'inputs': {
 					'hi': { 'label': 'Set HI' },
 					'low': { 'label': 'Set LOW' }
@@ -171,14 +176,13 @@ def add_action(msg):
 					'after': { 'label': 'After Sound' }
 				}
 			}
-		}	
+		}
 	}
-	
+
 	posx = posx + 20
 	posy = posy + 20
 	print ('emitting add_to_graph', posx, posy)
 	emit('add_to_graph', {'data': types[msg['data']]})
-
 
 def makeDict(array):
 	obj = {}
