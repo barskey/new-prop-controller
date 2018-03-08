@@ -18,11 +18,10 @@ $( document ).ready( function() {
 	  operators: {},
 	  links: {}
   };
+  
+  var $dashboard = $( '#dashboard' );
 
-  $('#dashboard').flowchart({
-    data: data
-  });
-
+  
   // An application can open a connection on multiple namespaces, and
   // Socket.IO will multiplex all those connections on a single
   // physical channel. If you don't care about multiple channels, you
@@ -36,7 +35,22 @@ $( document ).ready( function() {
   // The callback function is invoked when a connection with the
   // server is established.
   socket.on('connect', function() {
-    socket.emit('my_event', {data: 'I\'m connected!'});
+    socket.emit('connected');
+  });
+  
+  socket.on('create_graph', function(msg) {
+	  $dashboard.flowchart({
+		data: msg.data,
+		onAfterChange: function( type ) {
+			var graphData = $dashboard.flowchart( 'getData' );
+			socket.emit( 'save_graph', { data: graphData } );
+		},
+		onOperatorSelect: function ( opId ) {
+		    socket.emit( 'get_op_params', { data: opId } );
+			console.log (opId + ' selected');
+			return true;
+		}
+	  });
   });
   // Event handler for server sent data.
   // The callback function is invoked whenever the server emits data
@@ -47,7 +61,8 @@ $( document ).ready( function() {
   });
 
   socket.on('add_to_graph', function(msg) {
-    console.log($('#dashboard').flowchart('addOperator', msg.data));
+    $( '#dashboard' ).flowchart( 'createOperator', msg.id, msg.data );
+    $dashboard.flowchart( 'selectOperator', msg.id );
   });
 
   // Handlers for the different forms in the page.
@@ -74,7 +89,6 @@ $( document ).ready( function() {
   $( 'a.add-trigger' ).click( function() {
     var type = $( this ).attr( 'data-type' );
     socket.emit('add_trigger', {data: type});
-    $( '#editTrigger' ).BootSideMenu.open();
   });
 
   $( 'a.add-action' ).click( function() {

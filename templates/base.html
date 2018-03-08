@@ -63,20 +63,41 @@
             </li>
             <div class="nav-item collapse" id="triggerMenu">
               <ul class="nav flex-column">
-				<li class="nav-link text-nowrap"><h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1">Triggers</h6></li>
-                <li class="nav-item text-nowrap"><a class="nav-link add-trigger" href="#" data-type="interval"><i class="fas fa-plus fa-fw"></i>Fixed Interval</a></li>
-                <li class="nav-item text-nowrap"><a class="nav-link add-trigger" href="#" data-type="random"><i class="fas fa-plus fa-fw"></i>Random Interval</a></li>
-                {% for i in inputs %}
-                <li class="nav=item text-nowrap"><a class="nav-link add-trigger" href="#" data-type="input"><i class="fas fa-plus fa-fw"></i>{{ i }} Input</a></li>
-                {% endfor %}
+				<li class="nav-item dropright">
+					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><i class="fas fa-plus fa-fw"></i>ADD TIMER</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item add-trigger" href="#" data-type="interval">Fixed Interval</a>
+						<a class="dropdown-item add-trigger" href="#" data-type="random">Random Interval</a>
+					</div>
+				</li>
+				<li class="nav-item dropright">
+					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><i class="fas fa-plus fa-fw"></i>ADD TRIGGER</a>
+					<div class="dropdown-menu">
+						{% for i in inputs %}
+						<a class="dropdown-item add-trigger" href="#" data-type="input">Input -> {{ i }}</a>
+						{% endfor %}
+					</div>
+				</li>
               </ul>
             </div>
             <div class="nav-item collapse" id="actionMenu">
               <ul class="nav flex-column">
-				<li class="nav-link text-nowrap"><h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1">Actions</h6></li>
-                <li class="nav-item text-nowrap"><a class="nav-link add-action" href="#" data-type="output"><i class="fas fa-plus-circle fa-fw"></i>Set Output</a></li>
-                <li class="nav-item text-nowrap"><a class="nav-link add-action" href="#" data-type="toggle"><i class="fas fa-plus-circle fa-fw"></i>Toggle Output</a></li>
-                <li class="nav=item text-nowrap"><a class="nav-link add-action" href="#" data-type="sound"><i class="fas fa-plus-circle fa-fw"></i>Play Sound</a></li>
+				<li class="nav-item dropright">
+					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><i class="fas fa-plus fa-fw"></i>ADD OUTPUT</a>
+					<div class="dropdown-menu">
+						{% for o in outputs %}
+						<a class="dropdown-item add-action" href="#" data-type="output">Output -> {{ o }}</a>
+						{% endfor %}
+					</div>
+				</li>
+				<li class="nav-item dropright">
+					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><i class="fas fa-plus fa-fw"></i>ADD SOUND</a>
+					<div class="dropdown-menu">
+						{% for s in sounds %}
+						<a class="dropdown-item add-action" href="#" data-type="output">{{ s }}</a>
+						{% endfor %}
+					</div>
+				</li>
               </ul>
             </div>
             <li id="statusMenu" class="nav-item">
