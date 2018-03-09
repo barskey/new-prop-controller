@@ -92,7 +92,7 @@ def add_op(msg):
 	if msg['type'] == 'input':
 		op = defaults.TRIGGERS[msg['type']]
 		op['properties']['title'] = 'Input -> ' + msg['cid']
-	elif msg['type'] in ['interval', 'random']:
+	elif msg['type'] in ['interval', 'random', 'timer']:
 		op = defaults.TRIGGERS[msg['type']]
 	elif msg['type'] == 'output':
 		op = defaults.ACTIONS[msg['type']]
@@ -103,8 +103,7 @@ def add_op(msg):
 	op['top'] = posy
 	op['left'] = posx
 	id = get_next_opid()
-	if msg['type'] != 'output':
-		update_params({'opid': str(id)})
+	update_params({'opid': str(id), 'title': op['properties']['title'], 'type': msg['type']})
 	emit('add_to_graph', {'data': op, 'id': id})
 	posx = posx + 20
 	posy = posy + 20
@@ -114,10 +113,12 @@ def add_op(msg):
 def update_params(msg):
 	id = msg['opid'].decode('utf-8')
 	p = {}
+	p['title'] = msg.get('title', 'No Name')
 	p['param1'] = msg.get('param1', 5) # default to 5s if not set
 	p['param2'] = msg.get('param2', 10) # default to 10s if not set
+	p['type'] = msg.get('type', '') # default to empty string if not set
 	params = json.load(open('data/params.json'))
-	params[id] = {'param1': p['param1'], 'param2': p['param2']}
+	params[id] = {'title': p['title'], 'param1': p['param1'], 'param2': p['param2'], 'type': p['type']}
 	with open('data/params.json', 'w') as outfile:
 		json.dump(params, outfile)
 
@@ -133,16 +134,17 @@ def update_controller(msg):
 		json.dump(controllers, outfile)
 
 
+@socketio.on('get_op_params')
+def get_params(msg):
+	params = json.load(open('data/params.json'))
+	print (params[str(msg['id'])])
+	emit('show_params', {'params': params[str(msg['id'])], 'opid': str(msg['id'])})
+
+
 @socketio.on('save_graph')
 def save_to_file(msg):
 	with open('data/graph.json', 'w') as outfile:
 		json.dump(msg['data'], outfile)
-
-
-@socketio.on('get_op_params')
-def get_params(msg):
-	params = json.load(open('data/params.json'))
-	print (params)
 
 
 def makeDict(array):
@@ -151,6 +153,20 @@ def makeDict(array):
 		obj[item['name']] = item['value']
 	return obj
 
+	
+@socketio.on('clear_data')
+def clear_data(msg):
+	print (msg['data'])
+	empty = {}
+	if msg['data'] in ['graph', 'all']:
+		with open('data/graph.json', 'w') as outfile:
+			json.dump(empty, outfile)
+		with open('data/params.json', 'w') as outfile:
+			json.dump(empty, outfile)
+	if msg['data'] == 'all':
+		pass
+		#with open('data/controllers', 'w') as outfile:
+		#	json.dump(empy, outfile)
 
 def get_next_opid():
 	i = 0

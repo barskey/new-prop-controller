@@ -8,30 +8,64 @@
 <div id="dashboard" style="height:90vh"></div>
 
 <!-- Sliding properties sidebar -->
-<div id="editTrigger" class="h-50 my-auto">
+<div id="editOperator" class="my-auto" style="height: 30vh">
 	<div class="container">
-		<form class="form-inline" id="addTrigger">
+		<form class="form-inline" id="editOperator">
+			<input type="hidden" id="opid" name="opid" value="">
 			<ul class="list-group list-group-flush">
 				<li class="list-group-item"><h5>Properties</h5></li>
-				<li class="list-group-item">Name: &nbsp;
-					<input type="text" class="form-control" id="triggerName" name="name" placeholder="Trigger Name" style="width: 65%">
+				<li class="list-group-item">
+					<div class="input-group">
+						<div class="input-group-prepend">
+							<span class="input-group-text">Name</span>
+						</div>
+						<input type="text" class="form-control" id="title" name="title">
+					</div>
 				</li>
-				<li class="list-group-item triggerInterval">Every:&nbsp;
-					<input type="text" class="form-control w-25" id="triggerParam1" name="param1"> seconds
+				<li class="list-group-item edit-timer">
+					<div class="input-group">
+						<div class="input-group-prepend">
+							<span class="input-group-text">After</span>
+						</div>
+						<input type="text" class="form-control w-25" id="time-param1" name="param1">
+						<div class="input-group-append">
+							<span class="input-group-text">s</span>
+						</div>
+					</div>
 				</li>
-				<li class="list-group-item triggerRandom d-none">Bet:&nbsp;
-					<input type="text" class="form-control w-25" id="triggerParam1" name="param1">
-					&nbsp;and&nbsp;
-					<input type="text" class="form-control w-25" id="triggerParam2" name="param2">
-					&nbsp;secs
+				<li class="list-group-item edit-interval">
+					<div class="input-group">
+						<div class="input-group-prepend">
+							<span class="input-group-text">Every</span>
+						</div>
+						<input type="text" class="form-control w-25" id="interval-param1" name="param1">
+						<div class="input-group-append">
+							<span class="input-group-text">s</span>
+						</div>
+					</div>
 				</li>
-				<li class="list-group-item triggerInput d-none">Input:&nbsp;
-					<select id="triggerInput" class="custom-select w-75" name="input">
-					</select>
+				<li class="list-group-item edit-random">
+					<div class="input-group">
+						<div class="input-group-prepend">
+							<span class="input-group-text">Range</span>
+						</div>
+						<input type="text" class="form-control w-25" id="random-param1" name="param1">
+						<input type="text" class="form-control w-25" id="random-param2" name="param2">
+						<div class="input-group-append">
+							<span class="input-group-text">s</span>
+						</div>
+					</div>
+				</li>
+				<li class="list-group-item edit-output">
+					&nbsp;
+				</li>
+				<li class="list-group-item edit-input">
+					&nbsp;
 				</li>
 				<li class="list-group-item">
-					<button type="submit" class="btn btn-success">Save</button>
-					<button type="button" class="btn btn-danger float-right">Remove</button>
+					<button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
+					<button type="button" class="btn btn-secondary" id="cancelEdit"><i class="fas fa-ban"></i></button>
+					<button type="button" class="btn btn-danger"><i class="fas fa-trash"></i></button>
 				</li>
 			</ul>
 		</form>

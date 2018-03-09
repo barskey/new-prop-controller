@@ -13,8 +13,8 @@ $(function () {
             defaultSelectedLinkColor: 'black',
             linkWidth: 10,
             grid: 20,
-            multipleLinksOnOutput: true,
-            multipleLinksOnInput: true,
+            multipleLinksOnOutput: false,
+            multipleLinksOnInput: false,
             linkVerticalDecal: 0,
             onOperatorSelect: function (operatorId) {
                 return true;

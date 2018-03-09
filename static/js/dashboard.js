@@ -4,12 +4,13 @@ $( document ).ready( function() {
   $( '#triggerMenu' ).collapse( 'show' );
   $( '#actionMenu' ).collapse( 'show' );
 
-  $( '#editTrigger' ).BootSideMenu({
+  var $sideMenu = $( '#editOperator' );
+  $sideMenu.BootSideMenu({
   	side: 'right',
   	pushBody: false,
   	remember: false,
   	autoClose: true,
-  	width: '280px',
+  	width: '300px',
   	duration: 300,
     closeOnClick: false
   });
@@ -40,16 +41,31 @@ $( document ).ready( function() {
   socket.on('create_graph', function(msg) {
 	  $dashboard.flowchart({
 		data: msg.data,
+		multipleLinksOnInput: true,
+		multipleLinksOnOutput: true,
 		onAfterChange: function( type ) {
 			var graphData = $dashboard.flowchart( 'getData' );
 			socket.emit( 'save_graph', { data: graphData } );
 		},
 		onOperatorSelect: function ( opId ) {
-		    socket.emit( 'get_op_params', { data: opId } );
-			console.log (opId + ' selected');
+		    socket.emit( 'get_op_params', { id: opId } );
 			return true;
+		},
+		onOperatorUnselect: function () {
+			$sideMenu.BootSideMenu.close();
 		}
 	  });
+  });
+  
+  socket.on( 'show_params', function( msg ) {
+	  console.log(msg);
+	  $( '.edit-timer, .edit-input, .edit-interval, .edit-random, .edit-output' ).addClass( 'd-none' );
+	  $( '.edit-' + msg.params.type ).removeClass( 'd-none' );
+	  $( '#opid' ).val ( msg.opid );
+	  $( '#title' ).val( msg.params.title );
+	  $( '#' + msg.params.type + '-param1' ).val( msg.params.param1 );
+	  $( '#' + msg.params.type + '-param2' ).val( msg.params.param2 );
+	  $sideMenu.BootSideMenu.open();
   });
   // Event handler for server sent data.
   // The callback function is invoked whenever the server emits data
@@ -60,7 +76,7 @@ $( document ).ready( function() {
   });
 
   socket.on('add_to_graph', function(msg) {
-    $( '#dashboard' ).flowchart( 'createOperator', msg.id, msg.data );
+    $dashboard.flowchart( 'createOperator', msg.id, msg.data );
     $dashboard.flowchart( 'selectOperator', msg.id );
   });
 
@@ -83,28 +99,16 @@ $( document ).ready( function() {
     socket.emit('add_action', {data: $('form#addAction').serializeArray()});
     return false;
   });
-
+  
   //------------------------- Click Handlers ----------------------------------//
-  $( 'a.add-trigger, a.add-action' ).click( function() {
+  $( 'a.add-operator' ).click( function() {
     var type = $( this ).attr( 'data-type' );
     var cid = $( this ).attr( 'data-cid' );
     socket.emit('add_op', {type: type, cid: cid});
   });
-
-  //------------------------- Select Change Handlers --------------------------//
-  $( '#triggerType' ).change( function() {
-    $( '#addTrigger' ).find( ".triggerInterval" ).addClass( "d-none" );
-    $( '#addTrigger' ).find( ".triggerRandom" ).addClass( "d-none" );
-    $( '#addTrigger' ).find( ".triggerInput" ).addClass( "d-none" );
-    var type = $( this ).find( "option:selected" ).text();
-    $( '#addTrigger' ).find( ".trigger" + type ).removeClass( "d-none" );
+  
+  $( '#cancelEdit' ).click( function() {
+	  $dashboard.flowchart( 'unselectOperator' );
   });
 
-  $( '#actionType' ).change( function() {
-    $( '#addAction' ).find( ".actionOutput" ).addClass( "d-none" );
-    $( '#addAction' ).find( ".actionSound" ).addClass( "d-none" );
-    var type = $( this ).find( "option:selected" ).val();
-    console.log(type);
-    $( '#addAction' ).find( ".action" + type ).removeClass( "d-none" );
-  });
 });

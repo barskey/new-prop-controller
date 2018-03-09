@@ -42,7 +42,16 @@ $(document).ready(function() {
   });
 
   $( '#addController' ).click( function() {
-    socket.emit('sim_controller_connected');
+    socket.emit( 'sim_controller_connected' );
+  });
+  
+  $( '#clearControllers' ).click( function() {
+	socket.emit( 'clear_data', {data: 'all'} );
+  });
+
+  $( '#clearGraph' ).click( function() {
+	  console.log('cleargraph');
+	socket.emit( 'clear_data', {data: 'graph'} );
   });
 
   $( ':checkbox' ).change( function() {

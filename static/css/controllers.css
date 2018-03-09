@@ -159,26 +159,26 @@ body>.navbar-collapse .nav li.separator+.nav-item {
 /* All Inputs */
 .flowchart-operator.trigger-interval .flowchart-operator-title,
 .flowchart-operator.trigger-random .flowchart-operator-title,
-.flowchart-operator.trigger-input .flowchart-operator-title
+.flowchart-operator.trigger-input .flowchart-operator-title,
+.flowchart-operator.trigger-timer .flowchart-operator-title
  {
     background: #ff9933;
 }
 
 .flowchart-operator.trigger-random,
 .flowchart-operator.trigger-interval,
-.flowchart-operator.trigger-input {
+.flowchart-operator.trigger-input,
+.flowchart-operator.trigget-timer {
     border: 1px solid #ff6600;
 }
 
 /* All Outputs */
 .flowchart-operator.action-output .flowchart-operator-title,
-.flowchart-operator.action-toggle .flowchart-operator-title,
 .flowchart-operator.action-sound .flowchart-operator-title {
   background: #17a2b8;
 }
 
 .flowchart-operator.action-output,
-.flowchart-operator.action-toggle,
 .flowchart-operator.action-sound {
   border: 1px solid #6c757d;
 }
@@ -196,13 +196,13 @@ body>.navbar-collapse .nav li.separator+.nav-item {
     background: #fff3cd;
 }
 
+.flowchart-operator.trigger-timer {
+	background: #ffff99;
+}
+
 /* Actions */
 .flowchart-operator.action-output {
   background: #d1ecf1;
-}
-
-.flowchart-operator.action-toggle {
-  background: #cce5ff;
 }
 
 .flowchart-operator.action-sound {

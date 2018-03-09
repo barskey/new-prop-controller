@@ -1,39 +1,46 @@
 TRIGGERS = {
-	'interval': {
-		'top': 20,
-		'left': 20,
-			'properties':
-			{
-				'title': 'Fixed Interval',
-				'class': 'trigger-interval',
-				'inputs': {},
-				'outputs': {
-					'out1': {'label': 'Every 5s' }
-				}
+	'timer': {
+		'properties':
+		{
+			'title': 'One-Shot Timer',
+			'class': 'trigger-timer',
+			'inputs': {
+				'in1': {'label': 'In'}
+			},
+			'outputs': {
+				'out1': {'label': 'After 5s'}
 			}
-		},
+		}
+	},
+	'interval': {
+		'properties':
+		{
+			'title': 'Fixed Interval',
+			'class': 'trigger-interval',
+			'inputs': {},
+			'outputs': {
+				'out1': {'label': 'Every 5s'}
+			}
+		}
+	},
 	'random': {
-		'top': 20,
-		'left': 20,
 		'properties': {
 			'title': 'Random Interval',
 			'class': 'trigger-random',
 			'inputs': {},
 			'outputs': {
-				'out1': {'label': 'Randomly' }
-			}
+				'out1': {'label': 'Randomly'}
 		}
-	},
+	}
+},
 	'input': {
-		'top': 20,
-		'left': 20,
 		'properties': {
 			'title': 'Input Trigger',
 			'class': 'trigger-input',
 			'inputs': {},
 			'outputs': {
-				'out1': {'label': 'On HI' },
-				'out2': {'label': 'On LO' }
+				'out1': {'label': 'On HI'},
+				'out2': {'label': 'On LO'}
 			}
 		}
 	}
@@ -47,12 +54,12 @@ ACTIONS = {
 			'title': 'Output State',
 			'class': 'action-output',
 			'inputs': {
-				'hi': { 'label': 'Set HI' },
-				'low': { 'label': 'Set LOW' },
-				'toggle': { 'label': 'Toggle' }
+				'hi': {'label': 'Set HI'},
+				'low': {'label': 'Set LOW'},
+				'toggle': {'label': 'Toggle'}
 			},
 			'outputs': {
-				'after': { 'label': 'Then' }
+				'after': {'label': 'Then'}
 			}
 		}
 	},
@@ -63,10 +70,10 @@ ACTIONS = {
 			'title': 'Play Sound',
 			'class': 'action-sound',
 			'inputs': {
-				'in': { 'label': 'In' }
+				'in': {'label': 'In'}
 			},
 			'outputs': {
-				'after': { 'label': 'Then' }
+				'after': {'label': 'Then'}
 			}
 		}
 	}
