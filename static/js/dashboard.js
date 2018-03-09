@@ -18,10 +18,9 @@ $( document ).ready( function() {
 	  operators: {},
 	  links: {}
   };
-  
+
   var $dashboard = $( '#dashboard' );
 
-  
   // An application can open a connection on multiple namespaces, and
   // Socket.IO will multiplex all those connections on a single
   // physical channel. If you don't care about multiple channels, you
@@ -37,7 +36,7 @@ $( document ).ready( function() {
   socket.on('connect', function() {
     socket.emit('connected');
   });
-  
+
   socket.on('create_graph', function(msg) {
 	  $dashboard.flowchart({
 		data: msg.data,
@@ -86,15 +85,10 @@ $( document ).ready( function() {
   });
 
   //------------------------- Click Handlers ----------------------------------//
-  $( 'a.add-trigger' ).click( function() {
+  $( 'a.add-trigger, a.add-action' ).click( function() {
     var type = $( this ).attr( 'data-type' );
-    socket.emit('add_trigger', {data: type});
-  });
-
-  $( 'a.add-action' ).click( function() {
-    var type = $( this ).attr( 'data-type' );
-    socket.emit('add_action', {data: type});
-    //$( '#editAction' ).BootSideMenu.open();
+    var cid = $( this ).attr( 'data-cid' );
+    socket.emit('add_op', {type: type, cid: cid});
   });
 
   //------------------------- Select Change Handlers --------------------------//

@@ -8,7 +8,7 @@ TRIGGERS = {
 				'class': 'trigger-interval',
 				'inputs': {},
 				'outputs': {
-					'out1': {'label': 'Every' }
+					'out1': {'label': 'Every 5s' }
 				}
 			}
 		},
@@ -38,7 +38,7 @@ TRIGGERS = {
 		}
 	}
 }
-	
+
 ACTIONS = {
 	'output': {
 		'top': 20,

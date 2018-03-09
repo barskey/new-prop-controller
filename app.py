@@ -37,9 +37,6 @@ def index():
 def dashboard():
 	global posx, posy
 	posx, posy = 20, 20
-	triggers = {}
-	actions = {}
-	data = {}
 	inputs = []
 	outputs = []
 	for cid, data in json.load(open('data/controllers.json')).items():
@@ -48,7 +45,7 @@ def dashboard():
 		outputs.append(cid + '-B')
 		outputs.append(cid + '-C')
 		outputs.append(cid + '-D')
-	return render_template('dashboard.html', async_mode=socketio.async_mode, triggers=triggers, actions=actions, inputs=inputs, outputs=outputs, graphData=data)
+	return render_template('dashboard.html', async_mode=socketio.async_mode, inputs=inputs, outputs=outputs)
 
 
 @socketio.on('connect')
@@ -60,13 +57,13 @@ def test_connect():
 	#		thread = socketio.start_background_task(target=background_thread)
 	#emit('my_response', {'data': 'Connected', 'count': 0})
 
-	
+
 @socketio.on('connected')
 def connected():
 	print ('connected')
 	data = json.load(open('data/graph.json'))
 	emit('create_graph', {'data': data})
- 
+
 
 @socketio.on('my_broadcast_event')
 def test_broadcast_message(message):
@@ -88,31 +85,31 @@ def controller_connected(msg):
 		print ('Controller added.')
 
 
-@socketio.on('add_trigger')
-def add_trigger(msg):
+@socketio.on('add_op')
+def add_op(msg):
 	global posx, posy
-	trigger = defaults.TRIGGERS[msg['data']]
-	trigger['top'] = posy
-	trigger['left'] = posx
+	op = None
+	if msg['type'] == 'input':
+		op = defaults.TRIGGERS[msg['type']]
+		op['properties']['title'] = 'Input -> ' + msg['cid']
+	elif msg['type'] in ['interval', 'random']:
+		op = defaults.TRIGGERS[msg['type']]
+	elif msg['type'] == 'output':
+		op = defaults.ACTIONS[msg['type']]
+		op['properties']['title'] = 'Output -> ' + msg['cid']
+	else:
+		print (msg)
+		return
+	op['top'] = posy
+	op['left'] = posx
 	id = get_next_opid()
-	update_params({'opid': str(id)})
-	emit('add_to_graph', {'data': trigger, 'id': id})
+	if msg['type'] != 'output':
+		update_params({'opid': str(id)})
+	emit('add_to_graph', {'data': op, 'id': id})
 	posx = posx + 20
 	posy = posy + 20
 
-	
-@socketio.on('add_action')
-def add_action(msg):
-	global posx, posy
-	action = defaults.ACTIONS[msg['data']]
-	action['top'] = posy
-	action['left'] = posx
-	id = get_next_opid()
-	emit('add_to_graph', {'data': action, 'id': id})
-	posx = posx + 20
-	posy = posy + 20
 
-	
 @socketio.on('update_parameters')
 def update_params(msg):
 	id = msg['opid'].decode('utf-8')
@@ -124,7 +121,7 @@ def update_params(msg):
 	with open('data/params.json', 'w') as outfile:
 		json.dump(params, outfile)
 
-		
+
 @socketio.on('update_controller')
 def update_controller(msg):
 	cid = msg['cid'].decode('utf-8')
@@ -135,26 +132,26 @@ def update_controller(msg):
 	with open('data/controllers.json', 'w') as outfile:
 		json.dump(controllers, outfile)
 
-		
+
 @socketio.on('save_graph')
 def save_to_file(msg):
 	with open('data/graph.json', 'w') as outfile:
 		json.dump(msg['data'], outfile)
 
-		
+
 @socketio.on('get_op_params')
 def get_params(msg):
 	params = json.load(open('data/params.json'))
 	print (params)
 
-	
+
 def makeDict(array):
 	obj = {}
 	for item in array:
 		obj[item['name']] = item['value']
 	return obj
 
-	
+
 def get_next_opid():
 	i = 0
 	ops = json.load(open('data/graph.json')).get('operators', None)
@@ -164,6 +161,6 @@ def get_next_opid():
 		i = i + 1
 	return i
 
-	
+
 if __name__ == '__main__':
 	socketio.run(app, debug=True)
