@@ -40,20 +40,24 @@ $( document ).ready( function() {
 
   socket.on('create_graph', function(msg) {
 	  $dashboard.flowchart({
-		data: msg.data,
-		multipleLinksOnInput: true,
-		multipleLinksOnOutput: true,
-		onAfterChange: function( type ) {
-			var graphData = $dashboard.flowchart( 'getData' );
-			socket.emit( 'save_graph', { data: graphData } );
-		},
-		onOperatorSelect: function ( opId ) {
-		    socket.emit( 'get_op_params', { id: opId } );
-			return true;
-		},
-		onOperatorUnselect: function () {
-			$sideMenu.BootSideMenu.close();
-		}
+			data: msg.data,
+			multipleLinksOnInput: true,
+			multipleLinksOnOutput: true,
+			onAfterChange: function( type ) {
+				var graphData = $dashboard.flowchart( 'getData' );
+				socket.emit( 'save_graph', { data: graphData } );
+			},
+			onOperatorSelect: function ( opId ) {
+					socket.emit( 'get_op_params', { id: opId } );
+					return true;
+			},
+			onOperatorUnselect: function () {
+				$sideMenu.BootSideMenu.close();
+			},
+			onOperatorDelete: function ( opId ) {
+				socket.emit( 'delete_op_params', { id: opId } );
+				return true;
+			}
 	  });
   });
   
@@ -91,14 +95,6 @@ $( document ).ready( function() {
     socket.emit('my_broadcast_event', {data: $('#broadcast_data').val()});
     return false;
   });
-  $('form#addTrigger').submit(function(event) {
-    socket.emit('add_trigger', {data: $('form#addTrigger').serializeArray()});
-    return false;
-  });
-  $('form#addAction').submit(function(event) {
-    socket.emit('add_action', {data: $('form#addAction').serializeArray()});
-    return false;
-  });
   
   //------------------------- Click Handlers ----------------------------------//
   $( 'a.add-operator' ).click( function() {
@@ -110,5 +106,12 @@ $( document ).ready( function() {
   $( '#cancelEdit' ).click( function() {
 	  $dashboard.flowchart( 'unselectOperator' );
   });
+  
+  $( '#deleteSelectedOp' ).click (function() {
+		var id = $dashboard.flowchart( 'getSelectedOperatorId' );
+		if (id) {
+			$dashboard.flowchart( 'deleteOperator', id );
+		}
+	});
 
 });

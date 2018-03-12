@@ -98,7 +98,7 @@ def add_op(msg):
 		op = defaults.ACTIONS[msg['type']]
 		op['properties']['title'] = 'Output -> ' + msg['cid']
 	else:
-		print (msg)
+		print (msg['type'], msg)
 		return
 	op['top'] = posy
 	op['left'] = posx
@@ -118,6 +118,7 @@ def update_params(msg):
 	p['param2'] = msg.get('param2', 10) # default to 10s if not set
 	p['type'] = msg.get('type', '') # default to empty string if not set
 	params = json.load(open('data/params.json'))
+	# NOTE - all operator types get param1 and param2 set, even if they are not using it, like outputs
 	params[id] = {'title': p['title'], 'param1': p['param1'], 'param2': p['param2'], 'type': p['type']}
 	with open('data/params.json', 'w') as outfile:
 		json.dump(params, outfile)
@@ -147,6 +148,17 @@ def save_to_file(msg):
 		json.dump(msg['data'], outfile)
 
 
+@socketio.on('delete_op_params')
+def delete_params(msg):
+	id = str(msg['id'])
+	params = json.load(open('data/params.json'))
+	print('Before delete:', params)
+	if params.get(id, None) is not None:
+		del params[id]
+		print('After delete:', params)
+		with open('data/params.json', 'w') as outfile:
+			json.dump(params, outfile)
+		
 def makeDict(array):
 	obj = {}
 	for item in array:

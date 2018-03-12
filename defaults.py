@@ -48,8 +48,6 @@ TRIGGERS = {
 
 ACTIONS = {
 	'output': {
-		'top': 20,
-		'left': 20,
 		'properties': {
 			'title': 'Output State',
 			'class': 'action-output',
@@ -64,8 +62,6 @@ ACTIONS = {
 		}
 	},
 	'sound': {
-		'top': 20,
-		'left': 20,
 			'properties': {
 			'title': 'Play Sound',
 			'class': 'action-sound',
