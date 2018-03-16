@@ -1,4 +1,4 @@
-$( document ).ready( function() {
+$( function() {
   $( '#dashboardMenu' ).addClass( 'active' );
 
   $( '#triggerMenu' ).collapse( 'show' );
@@ -53,9 +53,22 @@ $( document ).ready( function() {
 			},
 			onOperatorUnselect: function () {
 				$sideMenu.BootSideMenu.close();
+				return true;
 			},
 			onOperatorDelete: function ( opId ) {
 				socket.emit( 'delete_op_params', { id: opId } );
+				return true;
+			},
+			onLinkSelect: function ( opId ) {
+				$( '#deleteSelectedOp' ).addClass( 'd-none' );
+				$( '.edit-timer, .edit-input, .edit-interval, .edit-random, .edit-output, .edit-title' ).addClass( 'd-none' );
+				$( '.edit-link' ).removeClass( 'd-none' );
+				$( '#deleteSelectedLink' ).removeClass( 'd-none');
+				$sideMenu.BootSideMenu.open();
+				return true;
+			},
+			onLinkUnselect: function () {
+				$sideMenu.BootSideMenu.close();
 				return true;
 			}
 	  });
@@ -63,14 +76,17 @@ $( document ).ready( function() {
   
   socket.on( 'show_params', function( msg ) {
 	  console.log(msg);
-	  $( '.edit-timer, .edit-input, .edit-interval, .edit-random, .edit-output' ).addClass( 'd-none' );
-	  $( '.edit-' + msg.params.type ).removeClass( 'd-none' );
-	  $( '#opid' ).val ( msg.opid );
+		$( '#deleteSelectedLink' ).addClass( 'd-none' );
+	  $( '.edit-timer, .edit-input, .edit-interval, .edit-random, .edit-output, .edit-link' ).addClass( 'd-none' );
+	  $( '.edit-title, .edit-' + msg.params.type ).removeClass( 'd-none' );
+		$( '#deleteSelectedOp' ).removeClass( 'd-none');
+		$( '#op-type' ).val( msg.params.type );
 	  $( '#title' ).val( msg.params.title );
 	  $( '#' + msg.params.type + '-param1' ).val( msg.params.param1 );
 	  $( '#' + msg.params.type + '-param2' ).val( msg.params.param2 );
 	  $sideMenu.BootSideMenu.open();
   });
+  
   // Event handler for server sent data.
   // The callback function is invoked whenever the server emits data
   // to the client. The data is then displayed in the "Received"
@@ -106,12 +122,29 @@ $( document ).ready( function() {
   $( '#cancelEdit' ).click( function() {
 	  $dashboard.flowchart( 'unselectOperator' );
   });
+	
+	$( '#saveSelectedOp' ).click ( function() {
+		var opid = $dashboard.flowchart( 'getSelectedOperatorId' );
+		var type = $( '#op-type' ).val();
+		var optitle = $( '#title' ).val();
+		var p1 = $( '#' + type + '-param1' ).val();
+		var p2 = $( '#' + type + '-param2' ).val();
+		$dashboard.flowchart( 'setOperatorTitle', opid, optitle );
+		socket.emit( 'update_parameters', {opid: opid, title: optitle, param1: p1, param2: p2, type: type});
+	});
   
-  $( '#deleteSelectedOp' ).click (function() {
-		var id = $dashboard.flowchart( 'getSelectedOperatorId' );
-		if (id) {
-			$dashboard.flowchart( 'deleteOperator', id );
+	$( '#deleteSelectedOp' ).click (function() {
+		var opid = $dashboard.flowchart( 'getSelectedOperatorId' );
+		if (opid) {
+			socket.emit( 'delete_op_params', { id: opid });
+			$dashboard.flowchart( 'deleteOperator', opid );
 		}
 	});
 
+	$( '#deleteSelectedLink' ).click (function() {
+		var opid = $dashboard.flowchart( 'getSelectedLinkId' );
+		if (opid) {
+			$dashboard.flowchart( 'deleteLink', opid );
+		}
+	});
 });

@@ -8,13 +8,13 @@
 <div id="dashboard" style="height:90vh"></div>
 
 <!-- Sliding properties sidebar -->
-<div id="editOperator" class="my-auto" style="height: 30vh">
+<div id="editOperator" class="my-auto" style="height: 28vh">
 	<div class="container">
 		<form class="form-inline" id="editOperator">
-			<input type="hidden" id="opid" name="opid" value="">
+			<input type="hidden" name="type" id="op-type" />
 			<ul class="list-group list-group-flush">
 				<li class="list-group-item"><h5>Properties</h5></li>
-				<li class="list-group-item">
+				<li class="list-group-item edit-title">
 					<div class="input-group">
 						<div class="input-group-prepend">
 							<span class="input-group-text">Name</span>
@@ -56,135 +56,17 @@
 						</div>
 					</div>
 				</li>
-				<li class="list-group-item edit-output">
-					&nbsp;
-				</li>
-				<li class="list-group-item edit-input">
+				<li class="list-group-item edit-output edit-input edit-link">
 					&nbsp;
 				</li>
 				<li class="list-group-item">
-					<button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
+					<button type="submit" class="btn btn-success" id="saveSelectedOp"><i class="fas fa-check"></i></button>
 					<button type="button" class="btn btn-secondary" id="cancelEdit"><i class="fas fa-ban"></i></button>
 					<button type="button" class="btn btn-danger" id="deleteSelectedOp"><i class="fas fa-trash"></i></button>
+					<button type="button" class="btn btn-danger" id="deleteSelectedLink"><i class="fas fa-trash"></i></button>
 				</li>
 			</ul>
 		</form>
 	</div>
 </div>
-
-<!--          <span>&nbsp;Add Trigger</span>
-</a>
-<div class="dropdown-menu" aria-labelledby="triggerDropdownMenuLink">
-<a class="dropdown-item" href="#"><i class="nc-icon nc-time-alarm"></i>Interval</a>
-<a class="dropdown-item" href="#"><i class="nc-icon nc-atom"></i>Random</a>
-<a class="dropdown-item" href="#"><i class="nc-icon nc-button-play"></i>Input</a>
-</div>
-</li>
-<li class="nav-item dropdown">
-<a class="nav-link dropdown-toggle" href="#" id="actionDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-<i class="nc-icon nc-simple-add"></i>
-<span>&nbsp;Add Action</span>
-</a>
-<div class="dropdown-menu" aria-labelledby="actionDropdownMenuLink">
-<a class="dropdown-item" href="#"><i class="nc-icon nc-bulb-63"></i>Set Output</a>
-<a class="dropdown-item" href="#"><i class="nc-icon nc-refresh-02"></i>Toggle Output</a>
-<a class="dropdown-item" href="#"><i class="nc-icon nc-note-03"></i>Play Sound</a>
-</div>
-</li>
-<li class="nav-item">
-<a class="nav-link">
-<span class="no-icon">Log out</span>
-</a>
-</li>
-</ul>
-</div>
-</div>
-</nav>
-<div class="content h-100">
-<div class="container-fluid h-100">
-<div id="dashboard" class="h-100">
-</div>
-<div class="fixed-plugin">
-<div class="dropdown show-dropdown">
-<a href="#" data-toggle="dropdown">
-<i class="fa fa-cog fa-2x"> </i>
-</a>
-<form class="form-inline" id="addTrigger">
-<ul class="dropdown-menu">
-<li class="header-title"><h5>Add/Edit Trigger</h5></li>
-<li class="adjustments-line">&nbsp;</li>
-<li class="adjustments-line">Name: &nbsp;
-<input type="text" class="form-control w-50" id="triggerName" name="name" placeholder="Trigger Name">
-</li>
-<li class="adjustments-line">Type:&nbsp;
-<select id="triggerType" class="custom-select w-75" name="type">
-<option value="Interval" selected>Interval</option>
-<option value="Random">Random</option>
-<option value="Input">Input</option>
-</select>
-</li>
-<li class="adjustments-line triggerInterval">Every:&nbsp;
-<input type="text" class="form-control w-25" id="triggerParam1" name="param1"> seconds
-</li>
-<li class="adjustments-line triggerRandom d-none">Bet:&nbsp;
-<input type="text" class="form-control w-25" id="triggerParam1" name="param1">
-&nbsp;and&nbsp;
-<input type="text" class="form-control w-25" id="triggerParam2" name="param2">
-&nbsp;secs
-</li>
-<li class="adjustments-line triggerInput d-none">Input:&nbsp;
-<select id="triggerInput" class="custom-select w-75" name="input">
-</select>
-</li>
-<li class="adjustments-line">
-<button type="submit" class="btn btn-success">Save</button>
-<button type="button" class="btn btn-danger float-right">Remove</button>
-</li>
-<li class="adjustments-line">&nbsp;</li>
-</ul>
-</form>
-<form class="form-inline d-none" id="addAction">
-<ul class="dropdown-menu">
-<li class="header-title"><h5>Add/Edit Action</h5></li>
-<li class="adjustments-line">&nbsp;</li>
-<li class="adjustments-line">Name: &nbsp;
-<input type="text" class="form-control w-50" id="actionName" name="name" placeholder="Action Name">
-</li>
-<li class="adjustments-line">Type:&nbsp;
-<select id="actionType" class="custom-select w-75" name="type">
-<option value="Output" selected>Set Output</option>
-<option value="Toggle">Toggle Output</option>
-<option value="Sound">Play Sound</option>
-</select>
-</li>
-<li class="adjustments-line actionOutput">Output:&nbsp;
-<select id="actionOutput" class="custom-select w-75" name="param1">
-</select>
-</li>
-<li class="adjustments-line actionToggle d-none">Toggle:&nbsp;
-<select id="actionToggle" class="custom-select w-75" name="param1">
-</select>
-</li>
-<li class="adjustments-line actionSound d-none">Play Sound:&nbsp;
-<select id="actionSound" class="custom-select w-75" name="param1">
-</select>
-</li>
-<li class="adjustments-line">
-<button type="submit" class="btn btn-success">Save</button>
-<button type="button" class="btn btn-danger float-right">Remove</button>
-</li>
-<li class="adjustments-line">&nbsp;</li>
-</ul>
-</form>
-</div>
-</div>
-
-<footer class="footer fixed-bottom">
-<div class="container">
-<span class="text-muted float-left" id="ping-pong"></div><span class="text-muted float-left" id="log"></span>
-</div>
-</footer>
-</div>
-</div>
-</div>-->
 {% endblock %}

@@ -111,14 +111,19 @@ def add_op(msg):
 
 @socketio.on('update_parameters')
 def update_params(msg):
-	id = msg['opid'].decode('utf-8')
+	# msg = {opid: ##, title: sss, param1: sss, param2: sss, type: sss}
+	id = None
+	try:
+		id = msg['opid'].decode('utf-8')
+	except AttributeError:
+		id = msg['opid']
 	p = {}
 	p['title'] = msg.get('title', 'No Name')
 	p['param1'] = msg.get('param1', 5) # default to 5s if not set
 	p['param2'] = msg.get('param2', 10) # default to 10s if not set
 	p['type'] = msg.get('type', '') # default to empty string if not set
 	params = json.load(open('data/params.json'))
-	# NOTE - all operator types get param1 and param2 set, even if they are not using it, like outputs
+	# NOTE - all operator types get param1 and param2 set, even if they are not using it, e.g. outputs
 	params[id] = {'title': p['title'], 'param1': p['param1'], 'param2': p['param2'], 'type': p['type']}
 	with open('data/params.json', 'w') as outfile:
 		json.dump(params, outfile)
@@ -138,7 +143,6 @@ def update_controller(msg):
 @socketio.on('get_op_params')
 def get_params(msg):
 	params = json.load(open('data/params.json'))
-	print (params[str(msg['id'])])
 	emit('show_params', {'params': params[str(msg['id'])], 'opid': str(msg['id'])})
 
 

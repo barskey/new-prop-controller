@@ -5,10 +5,10 @@ TRIGGERS = {
 			'title': 'One-Shot Timer',
 			'class': 'trigger-timer',
 			'inputs': {
-				'in1': {'label': 'In'}
+				'in1': {'label': 'Start'}
 			},
 			'outputs': {
-				'out1': {'label': 'After 5s'}
+				'out1': {'label': 'After Timer'}
 			}
 		}
 	},
@@ -19,7 +19,7 @@ TRIGGERS = {
 			'class': 'trigger-interval',
 			'inputs': {},
 			'outputs': {
-				'out1': {'label': 'Every 5s'}
+				'out1': {'label': 'On Interval'}
 			}
 		}
 	},
@@ -66,10 +66,10 @@ ACTIONS = {
 			'title': 'Play Sound',
 			'class': 'action-sound',
 			'inputs': {
-				'in': {'label': 'In'}
+				'in1': {'label': 'Play'}
 			},
 			'outputs': {
-				'after': {'label': 'Then'}
+				'out1': {'label': 'Then'}
 			}
 		}
 	}
