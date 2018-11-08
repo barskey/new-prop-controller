@@ -1,1 +1,1 @@
-{"C54": {"input": "HI", "outB": "LO", "outC": "LO", "outD": "LO", "outA": "HI"}, "C50": {"input": "LO", "outB": "LO", "outC": "LO", "outD": "HI", "outA": "HI"}}
+{"C54": {"input": "HI", "outB": "LO", "outC": "LO", "outD": "LO", "outA": "HI"}, "C50": {"input": "LO", "outB": "LO", "outC": "LO", "outD": "LO", "outA": "LO"}}
