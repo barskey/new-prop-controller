@@ -36,6 +36,7 @@ $( function() {
   // server is established.
   socket.on('connect', function() {
     socket.emit('connected');
+	socket.emit('test');
   });
 
   socket.on('create_graph', function(msg) {
@@ -87,10 +88,6 @@ $( function() {
 	  $sideMenu.BootSideMenu.open();
   });
   
-  // Event handler for server sent data.
-  // The callback function is invoked whenever the server emits data
-  // to the client. The data is then displayed in the "Received"
-  // section of the page.
   socket.on('my_response', function(msg) {
     $('#log').prepend($('<div/>').text('Received #' + msg.count + ': ' + msg.data).html() + '<br>');
   });
@@ -100,17 +97,6 @@ $( function() {
     $dashboard.flowchart( 'selectOperator', msg.id );
   });
 
-  // Handlers for the different forms in the page.
-  // These accept data from the user and send it to the server in a
-  // variety of ways
-  $('form#emit').submit(function(event) {
-    socket.emit('my_event', {data: $('#emit_data').val()});
-    return false;
-  });
-  $('form#broadcast').submit(function(event) {
-    socket.emit('my_broadcast_event', {data: $('#broadcast_data').val()});
-    return false;
-  });
   
   //------------------------- Click Handlers ----------------------------------//
   $( 'a.add-operator' ).click( function() {

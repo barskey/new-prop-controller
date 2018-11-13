@@ -76,9 +76,9 @@ ACTIONS = {
 }
 
 CONTROLLER = {
-	'input': 'HI',
-	'outA': 'LO',
-	'outB': 'LO',
-	'outC': 'LO',
-	'outD': 'LO'
+	'input': '1',
+	'A': '0',
+	'B': '0',
+	'C': '0',
+	'D': '0'
 }

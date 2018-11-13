@@ -12,19 +12,8 @@ async_mode = None
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode=async_mode)
-thread = None
-thread_lock = Lock()
 
 posx, posy = 20, 20 # starting position of graph nodes
-
-def background_thread():
-	"""Example of how to send server generated events to clients."""
-	count = 0
-	while True:
-		socketio.sleep(10)
-		count += 1
-		print ('emitting my_response')
-		socketio.emit('my_response', {'data': 'Server generated event', 'count': count})
 
 
 @app.route('/')
@@ -51,11 +40,6 @@ def dashboard():
 @socketio.on('connect')
 def test_connect():
 	print ('connect')
-	#global thread
-	#with thread_lock:
-	#	if thread is None:
-	#		thread = socketio.start_background_task(target=background_thread)
-	#emit('my_response', {'data': 'Connected', 'count': 0})
 
 
 @socketio.on('connected')
@@ -63,14 +47,6 @@ def connected():
 	print ('connected')
 	data = json.load(open('data/graph.json'))
 	emit('create_graph', {'data': data})
-
-
-@socketio.on('my_broadcast_event')
-def test_broadcast_message(message):
-	session['receive_count'] = session.get('receive_count', 0) + 1
-	emit('my_response',
-		 {'data': message['data'], 'count': session['receive_count']},
-		 broadcast=True)
 
 
 @socketio.on('ping_received')
@@ -135,7 +111,7 @@ def update_controller(msg):
 	port = msg['port'].decode('utf-8')
 	state = msg['val']
 	controllers = json.load(open('data/controllers.json'))
-	controllers[cid][port] = 'HI' if state else 'LO'
+	controllers[cid][port] = '1' if state else '0'
 	with open('data/controllers.json', 'w') as outfile:
 		json.dump(controllers, outfile)
 
@@ -192,6 +168,30 @@ def get_next_opid():
 	while ops.get(str(i), None) is not None:
 		i = i + 1
 	return i
+
+
+# Parse graph json data into json representation of action->event data
+# to send to controllers. See defaults.py for dict structure.
+# Return format: {TRIGGERTYPE: {PARAMS: {P1: <value>, P2: <value>}, ACTIONS: [{ID: <value>, OUTPUT: <value>, ACTION: <value>}]
+@socketio.on('test')
+def parse_graph_data():
+	params = json.load(open('data/params.json'))
+	data = json.load(open('data/graph.json'))
+	operators = data['operators']
+	links = data['links']
+	
+	#print (json.dumps(data, indent=2))
+	for id,v in operators.items():
+		if v['properties']['class'] == 'trigger-interval':
+			print ('Interval for Input ' + id + ': ' + params[id]['param1'])
+		elif v['properties']['class'] == 'trigger-timer':
+			print ('Timer for Input ' + id + ': ' + params[id]['param1'])
+		elif v['properties']['class'] == 'trigger-random':
+			print ('Randomly for Input ' + id + ': ' + params[id]['param1'] + ' to ' + params[id]['param2'])
+		elif v['properties']['class'] == 'trigger-input':
+			print ('Trigger for Input ' + id + ': ' + 'Need to check links for state')
+		elif v['properties']['class'] == 'action-output':
+			print ('Action on Output ' + id + ': ' + 'Need to check links for action')
 
 
 if __name__ == '__main__':
