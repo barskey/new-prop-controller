@@ -35,8 +35,8 @@ $( function() {
   // The callback function is invoked when a connection with the
   // server is established.
   socket.on('connect', function() {
-    socket.emit('connected');
-	socket.emit('test');
+    socket.emit('show_graph');
+	socket.emit('send_graph');
   });
 
   socket.on('create_graph', function(msg) {

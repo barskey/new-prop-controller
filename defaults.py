@@ -5,7 +5,7 @@ TRIGGERS = {
 			'title': 'One-Shot Timer',
 			'class': 'trigger-timer',
 			'inputs': {
-				'in1': {'label': 'Start'}
+				's': {'label': 'Start'}
 			},
 			'outputs': {
 				'out1': {'label': 'After Timer'}
@@ -39,8 +39,8 @@ TRIGGERS = {
 			'class': 'trigger-input',
 			'inputs': {},
 			'outputs': {
-				'out1': {'label': 'On HI'},
-				'out2': {'label': 'On LO'}
+				'h': {'label': 'On HI'},
+				'l': {'label': 'On LO'}
 			}
 		}
 	}
@@ -52,9 +52,9 @@ ACTIONS = {
 			'title': 'Output State',
 			'class': 'action-output',
 			'inputs': {
-				'hi': {'label': 'Set HI'},
-				'low': {'label': 'Set LOW'},
-				'toggle': {'label': 'Toggle'}
+				'H': {'label': 'Set HI'},
+				'L': {'label': 'Set LOW'},
+				'T': {'label': 'Toggle'}
 			},
 			'outputs': {
 				'after': {'label': 'Then'}
@@ -66,10 +66,10 @@ ACTIONS = {
 			'title': 'Play Sound',
 			'class': 'action-sound',
 			'inputs': {
-				'in1': {'label': 'Play'}
+				'P': {'label': 'Play'}
 			},
 			'outputs': {
-				'out1': {'label': 'Then'}
+				'after': {'label': 'Then'}
 			}
 		}
 	}

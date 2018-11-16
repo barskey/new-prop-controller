@@ -42,8 +42,8 @@ def test_connect():
 	print ('connect')
 
 
-@socketio.on('connected')
-def connected():
+@socketio.on('show_graph')
+def load_graph():
 	print ('connected')
 	data = json.load(open('data/graph.json'))
 	emit('create_graph', {'data': data})
@@ -94,13 +94,14 @@ def update_params(msg):
 	except AttributeError:
 		id = msg['opid']
 	p = {}
+	p['cid'] = 'C123'
 	p['title'] = msg.get('title', 'No Name')
 	p['param1'] = msg.get('param1', 5) # default to 5s if not set
 	p['param2'] = msg.get('param2', 10) # default to 10s if not set
 	p['type'] = msg.get('type', '') # default to empty string if not set
 	params = json.load(open('data/params.json'))
 	# NOTE - all operator types get param1 and param2 set, even if they are not using it, e.g. outputs
-	params[id] = {'title': p['title'], 'param1': p['param1'], 'param2': p['param2'], 'type': p['type']}
+	params[id] = {'cid': p['cid'], 'title': p['title'], 'param1': p['param1'], 'param2': p['param2'], 'type': p['type']}
 	with open('data/params.json', 'w') as outfile:
 		json.dump(params, outfile)
 
@@ -170,29 +171,74 @@ def get_next_opid():
 	return i
 
 
-# Parse graph json data into json representation of action->event data
-# to send to controllers. See defaults.py for dict structure.
-# Return format: {TRIGGERTYPE: {PARAMS: {P1: <value>, P2: <value>}, ACTIONS: [{ID: <value>, OUTPUT: <value>, ACTION: <value>}]
-@socketio.on('test')
+# Parse graph json data into json representation of action/event data to send to controllers.
+# See defaults.py for dict structure.
+# First find all operators of type interval, random or trigger - these are required to trigger other actions.
+# Then build output structure in the form:
+# triggers
+# {<from opid>: {cid: <contoller id>,
+#                t(type): <R(random), (V)interval, (I)input>
+#                p(params): [<param1, param2>]
+#                a(actions): []}}
+# actions
+# {<from opid>: {cid: <controller id>,
+#                t(type): <O(output), T(timer), S(sound)>,
+#                p(params): <A(port name), ##(sound id), #.#(time in s)>,
+#                a(actions): []}}
+@socketio.on('send_graph')
 def parse_graph_data():
 	params = json.load(open('data/params.json'))
 	data = json.load(open('data/graph.json'))
 	operators = data['operators']
 	links = data['links']
+	#print (json.dumps(links, indent=2))
+
+	triggers = {}
 	
-	#print (json.dumps(data, indent=2))
 	for id,v in operators.items():
 		if v['properties']['class'] == 'trigger-interval':
-			print ('Interval for Input ' + id + ': ' + params[id]['param1'])
-		elif v['properties']['class'] == 'trigger-timer':
-			print ('Timer for Input ' + id + ': ' + params[id]['param1'])
+			triggers[id] = {'cid': params[id]['cid'], 't': 'V', 'p': [params[id]['param1']]}
 		elif v['properties']['class'] == 'trigger-random':
-			print ('Randomly for Input ' + id + ': ' + params[id]['param1'] + ' to ' + params[id]['param2'])
+			triggers[id] =  {'cid': params[id]['cid'], 't': 'R', 'p': [params[id]['param1'], params[id]['param2']]}
 		elif v['properties']['class'] == 'trigger-input':
-			print ('Trigger for Input ' + id + ': ' + 'Need to check links for state')
-		elif v['properties']['class'] == 'action-output':
-			print ('Action on Output ' + id + ': ' + 'Need to check links for action')
+			triggers[id] = {'cid': params[id]['cid'], 't': 'I', 'p': [params[id]['param1']]}
 
+	# iterate through triggers and build action arrays
+	for id, v in triggers.items():
+		#print ('Getting actions for op ' + params[id]['title'])
+		v['a'] = get_actions(id)
+					
+	print (json.dumps(triggers, indent=2))
+	print ('String length: {0}'.format(len(json.dumps(triggers, separators=(',',':')))))
+
+def get_actions(opid):
+	params = json.load(open('data/params.json'))
+	data = json.load(open('data/graph.json'))
+	operators = data['operators']
+	links = data['links']
+
+	actions = []
+	#links_copy = dict(links) # copy dict so as we iterate thru we can remove from original dict
+	for linkid,v in links.items():
+		from_opid = str(v['fromOperator']) # assign to variable for convenience
+		if from_opid == opid:
+			#del links[from_id] # remove it since we have already added to triggers
+			to_opid = str(v['toOperator']) # operator id to which this link connects
+			#print ('Found link connecting from {0} to {1}'.format(params[from_opid]['title'], params[to_opid]['title']))
+			cid = params[to_opid]['cid'] # get actual contoller id
+			type = operators[to_opid]['properties']['class']
+			if type.endswith('timer'):
+				type = 'T'
+			elif type.endswith('output'):
+				type = 'O'
+			elif type.endswith('sound'):
+				type = 'S'
+			param = v['toConnector']
+			action = {'opid': to_opid, 'cid': cid, 't': type, 'p': [param]}
+			action['a'] = get_actions(to_opid)
+			actions.append(action)
+	
+	return actions
 
 if __name__ == '__main__':
 	socketio.run(app, debug=True)
