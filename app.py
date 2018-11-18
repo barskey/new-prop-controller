@@ -139,14 +139,14 @@ def delete_params(msg):
 		print('After delete:', params)
 		with open('data/params.json', 'w') as outfile:
 			json.dump(params, outfile)
-		
+
 def makeDict(array):
 	obj = {}
 	for item in array:
 		obj[item['name']] = item['value']
 	return obj
 
-	
+
 @socketio.on('clear_data')
 def clear_data(msg):
 	print (msg['data'])
@@ -185,7 +185,7 @@ def get_next_opid():
 #                t(type): <O(output), T(timer), S(sound)>,
 #                p(params): <A(port name), ##(sound id), #.#(time in s)>,
 #                a(actions): []}}
-@socketio.on('send_graph')
+@socketio.on('got_token')
 def parse_graph_data():
 	params = json.load(open('data/params.json'))
 	data = json.load(open('data/graph.json'))
@@ -194,7 +194,7 @@ def parse_graph_data():
 	#print (json.dumps(links, indent=2))
 
 	triggers = {}
-	
+
 	for id,v in operators.items():
 		if v['properties']['class'] == 'trigger-interval':
 			triggers[id] = {'cid': params[id]['cid'], 't': 'V', 'p': [params[id]['param1']]}
@@ -207,9 +207,11 @@ def parse_graph_data():
 	for id, v in triggers.items():
 		#print ('Getting actions for op ' + params[id]['title'])
 		v['a'] = get_actions(id)
-					
+
 	print (json.dumps(triggers, indent=2))
 	print ('String length: {0}'.format(len(json.dumps(triggers, separators=(',',':')))))
+
+	emit('send_graph', {'data': json.dumps(triggers, separators=(',',':'))})
 
 def get_actions(opid):
 	params = json.load(open('data/params.json'))
@@ -237,7 +239,7 @@ def get_actions(opid):
 			action = {'opid': to_opid, 'cid': cid, 't': type, 'p': [param]}
 			action['a'] = get_actions(to_opid)
 			actions.append(action)
-	
+
 	return actions
 
 if __name__ == '__main__':

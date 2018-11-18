@@ -22,6 +22,10 @@ $( function() {
 
   var $dashboard = $( '#dashboard' );
 
+  //var Particle = require('particle-api-js');
+  var particle = new Particle();
+  var token;
+
   // An application can open a connection on multiple namespaces, and
   // Socket.IO will multiplex all those connections on a single
   // physical channel. If you don't care about multiple channels, you
@@ -36,7 +40,29 @@ $( function() {
   // server is established.
   socket.on('connect', function() {
     socket.emit('show_graph');
-	socket.emit('send_graph');
+    particle.login({username: 'barskey@gmail.com', password: 'CarlyAnn1102'}).then(
+      function(data) {
+        token = data.body.access_token;
+        console.log(token);
+        socket.emit('got_token');
+      },
+      function (err) {
+        console.log('Could not log in.', err);
+      }
+    );
+  });
+
+  socket.on('send_graph', function(msg) {
+    var publishEventSendGraph = particle.publishEvent({name: 'Graph', data: msg.data, auth: token});
+
+    publishEventSendGraph.then(
+      function(data) {
+        if (data.body.ok) { console.log("Event published successfully.") }
+      },
+      function(err) {
+        console.log("Failed to publish event: " + err);
+      }
+    );
   });
 
   socket.on('create_graph', function(msg) {
@@ -74,7 +100,7 @@ $( function() {
 			}
 	  });
   });
-  
+  //3fc770faa4f820dd5503b18ae3bf9262be8430ba
   socket.on( 'show_params', function( msg ) {
 	  console.log(msg);
 		$( '#deleteSelectedLink' ).addClass( 'd-none' );
@@ -87,7 +113,7 @@ $( function() {
 	  $( '#' + msg.params.type + '-param2' ).val( msg.params.param2 );
 	  $sideMenu.BootSideMenu.open();
   });
-  
+
   socket.on('my_response', function(msg) {
     $('#log').prepend($('<div/>').text('Received #' + msg.count + ': ' + msg.data).html() + '<br>');
   });
@@ -97,18 +123,17 @@ $( function() {
     $dashboard.flowchart( 'selectOperator', msg.id );
   });
 
-  
   //------------------------- Click Handlers ----------------------------------//
   $( 'a.add-operator' ).click( function() {
     var type = $( this ).attr( 'data-type' );
     var cid = $( this ).attr( 'data-cid' );
     socket.emit('add_op', {type: type, cid: cid});
   });
-  
+
   $( '#cancelEdit' ).click( function() {
 	  $dashboard.flowchart( 'unselectOperator' );
   });
-	
+
 	$( '#saveSelectedOp' ).click ( function() {
 		var opid = $dashboard.flowchart( 'getSelectedOperatorId' );
 		var type = $( '#op-type' ).val();
@@ -118,7 +143,7 @@ $( function() {
 		$dashboard.flowchart( 'setOperatorTitle', opid, optitle );
 		socket.emit( 'update_parameters', {opid: opid, title: optitle, param1: p1, param2: p2, type: type});
 	});
-  
+
 	$( '#deleteSelectedOp' ).click (function() {
 		var opid = $dashboard.flowchart( 'getSelectedOperatorId' );
 		if (opid) {

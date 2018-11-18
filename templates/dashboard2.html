@@ -1,0 +1,23 @@
+<!-- extend from base layout -->
+{% extends "base2.html" %}
+
+{% block content %}
+<!-- Page specific JavaScript -->
+<script>
+	//var Particle = require('particle-api-js');
+  var particle = new Particle();
+  var token;
+
+  particle.login({username: 'barskey@gmail.com', password: 'CarlyAnn1102'}).then(
+    function(data) {
+      token = data.body.access_token;
+			console.log(token);
+    },
+    function (err) {
+      console.log('Could not log in.', err);
+    }
+  );
+	console.log(token);
+</script>
+
+{% endblock %}
