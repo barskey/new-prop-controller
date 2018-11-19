@@ -48,22 +48,9 @@ $( function() {
       function(data) {
         token = data.body.access_token;
         console.log('Logged in to Particle. Token received.');
-        socket.emit('got_token');
       },
       function (err) {
         console.log('Could not log in.', err);
-      }
-    );
-  });
-
-  socket.on('send_graph', function(msg) {
-    var publishEventSendGraph = particle.publishEvent({name: 'Graph', data: msg.data, auth: token});
-    publishEventSendGraph.then(
-      function(data) {
-        if (data.body.ok) { console.log("Event published successfully.") }
-      },
-      function(err) {
-        console.log("Failed to publish event: " + err);
       }
     );
   });
@@ -75,7 +62,8 @@ $( function() {
 			multipleLinksOnOutput: true,
 			onAfterChange: function( type ) {
 				var graphData = $dashboard.flowchart( 'getData' );
-				socket.emit( 'save_graph', { data: graphData } );
+				socket.emit('save_graph', { data: graphData } );
+				$( '#sendGraph' ).removeClass( 'btn-warning btn-success' ).addClass( 'btn-warning').text( 'Send Data');
 			},
 			onOperatorSelect: function ( opId ) {
 					socket.emit( 'get_op_params', { id: opId } );
@@ -103,6 +91,33 @@ $( function() {
 			}
 	  });
   });
+
+  socket.on('send_graph', function(msg) {
+	if (token) {
+		var i;
+		if (!msg.complete) {
+			var publishEventSendGraph = particle.publishEvent({name: 'Graph' + msg.part, data: msg.data, auth: token});
+			publishEventSendGraph.then(
+			  function(data) {
+				if (data.body.ok) {
+					console.log("Event published successfully.");
+					i++;
+				}
+			  },
+			  function(err) {
+				console.log("Failed to publish event: " + err);
+			  }
+			);
+		} else {
+			console.log ("Message complete." + i + " messages published.");
+			i = 0;
+			$( '#sendGraph' ).removeClass( 'btn-warning btn-success' ).addClass( 'btn-success').text( 'Sent');
+		}
+	} else {
+		console.log("Tried to publish graph but no valid token.");
+	}
+  });
+
   socket.on( 'show_params', function( msg ) {
 	  console.log(msg);
 		$( '#deleteSelectedLink' ).addClass( 'd-none' );
@@ -116,8 +131,10 @@ $( function() {
 	  $sideMenu.BootSideMenu.open();
   });
 
-  socket.on('my_response', function(msg) {
-    $('#log').prepend($('<div/>').text('Received #' + msg.count + ': ' + msg.data).html() + '<br>');
+  socket.on('log_response', function(msg) {
+    $('#log').prepend(
+		$('<li>').text( msg.response ).addClass( 'text-success' )
+	);
   });
 
   socket.on('add_to_graph', function(msg) {
@@ -159,5 +176,9 @@ $( function() {
 		if (opid) {
 			$dashboard.flowchart( 'deleteLink', opid );
 		}
+	});
+	
+	$( '#sendGraph' ).click ( function() {
+		socket.emit('parse_graph');
 	});
 });

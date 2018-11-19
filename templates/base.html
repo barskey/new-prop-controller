@@ -117,7 +117,19 @@
       <main role="main" class="col-md-10 ml-sm-auto pt-3 px-4">
         {% block content %}{% endblock %}
       </main>
-    </div>
+	</div>
+	<div class="row justify-content-end">
+		<div class="col-md-8 footer">
+			<ul class="list-unstyled" id="log">
+				<li class="text-danger"><strong>This is my sticky footer.</strong></li>
+				<li class="text-warning">This is a warning.</li>
+				<li class="text-success">This is success.</li>
+			</ul>
+		</div>
+		<div class="col-md-2 footer footer-btn">
+			<button type="button" class="btn btn-secondary btn-block" id="sendGraph">Up-to-Date</button>
+		</div>
+	</div>
   </div>
 </body>
 </html>

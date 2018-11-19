@@ -105,6 +105,19 @@ body>.navbar-collapse .nav li.separator+.nav-item {
   text-transform: uppercase;
 }
 
+.footer {
+  background-color: #CCCCCC;
+  height: 50px;
+  border-top: 1px solid #222222;
+  overflow-x: hidden;
+  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+}
+
+.footer-btn {
+  display: flex;
+  align-items: center;
+}
+
 /*
  * Navbar
  */

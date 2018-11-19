@@ -42,6 +42,7 @@ def connect():
 	print ('connect')
 	username = 'barskey@gmail.com'
 	pwd = 'CarlyAnn1102'
+	emit('log_response', {'response': 'Connected to socket server.'})
 	emit('get_token', {'username': username, 'pwd': pwd})
 
 
@@ -188,7 +189,7 @@ def get_next_opid():
 #                t(type): <O(output), T(timer), S(sound)>,
 #                p(params): <A(port name), ##(sound id), #.#(time in s)>,
 #                a(actions): []}}
-@socketio.on('got_token')
+@socketio.on('parse_graph')
 def parse_graph_data():
 	params = json.load(open('data/params.json'))
 	data = json.load(open('data/graph.json'))
@@ -212,10 +213,17 @@ def parse_graph_data():
 		#print ('Getting actions for op ' + params[id]['title'])
 		v['a'] = get_actions(str(int_id))
 
-	print (json.dumps(triggers, indent=2))
-	print ('String length: {0}'.format(len(json.dumps(triggers, separators=(',',':')))))
+	#print (json.dumps(triggers, indent=2))
+	#print ('String length: {0}'.format(len(json.dumps(triggers, separators=(',',':')))))
 
-	emit('send_graph', {'data': json.dumps(triggers, separators=(',',':'))})
+	part = 1
+	for trigger_op_id,trigger in triggers.items():
+		multipart = '/' + str(part)
+		print('Sending Trigger:', trigger)
+		emit('send_graph', {'part': multipart, 'data': json.dumps(trigger, separators=(',',':')), 'complete': False})
+		part = part + 1
+	emit('send_graph', {'part': '', 'data': '', 'complete': True})
+	
 
 def get_actions(str_opid):
 	params = json.load(open('data/params.json'))
@@ -229,10 +237,10 @@ def get_actions(str_opid):
 		from_opid = v['fromOperator']
 		if str(from_opid) == str_opid:
 			#del links[from_id] # remove it since we have already added to triggers
-			to_opid = str(v['toOperator']) # operator id to which this link connects
+			to_opid = v['toOperator'] # operator id to which this link connects
 			#print ('Found link connecting from {0} to {1}'.format(params[from_opid]['title'], params[to_opid]['title']))
-			cid = params[to_opid]['cid'] # get actual contoller id
-			type = operators[to_opid]['properties']['class']
+			cid = params[str(to_opid)]['cid'] # get actual contoller id
+			type = operators[str(to_opid)]['properties']['class']
 			if type.endswith('timer'):
 				type = 'T'
 			elif type.endswith('output'):
@@ -241,7 +249,7 @@ def get_actions(str_opid):
 				type = 'S'
 			param = v['toConnector']
 			action = {'opid': to_opid, 'cid': cid, 't': type, 'p': [param]}
-			action['a'] = get_actions(to_opid)
+			action['a'] = get_actions(str(to_opid))
 			actions.append(action)
 
 	return actions
