@@ -40,10 +40,14 @@ $( function() {
   // server is established.
   socket.on('connect', function() {
     socket.emit('show_graph');
-    particle.login({username: 'barskey@gmail.com', password: 'CarlyAnn1102'}).then(
+  });
+  
+  socket.on('get_token',  function(msg) {
+	//3fc770faa4f820dd5503b18ae3bf9262be8430ba
+    particle.login({username: msg.username, password: msg.pwd}).then(
       function(data) {
         token = data.body.access_token;
-        console.log(token);
+        console.log('Logged in to Particle. Token received.');
         socket.emit('got_token');
       },
       function (err) {
@@ -54,7 +58,6 @@ $( function() {
 
   socket.on('send_graph', function(msg) {
     var publishEventSendGraph = particle.publishEvent({name: 'Graph', data: msg.data, auth: token});
-
     publishEventSendGraph.then(
       function(data) {
         if (data.body.ok) { console.log("Event published successfully.") }
@@ -100,7 +103,6 @@ $( function() {
 			}
 	  });
   });
-  //3fc770faa4f820dd5503b18ae3bf9262be8430ba
   socket.on( 'show_params', function( msg ) {
 	  console.log(msg);
 		$( '#deleteSelectedLink' ).addClass( 'd-none' );

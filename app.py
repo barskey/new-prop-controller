@@ -38,8 +38,11 @@ def dashboard():
 
 
 @socketio.on('connect')
-def test_connect():
+def connect():
 	print ('connect')
+	username = 'barskey@gmail.com'
+	pwd = 'CarlyAnn1102'
+	emit('get_token', {'username': username, 'pwd': pwd})
 
 
 @socketio.on('show_graph')
@@ -195,25 +198,26 @@ def parse_graph_data():
 
 	triggers = {}
 
-	for id,v in operators.items():
+	for str_id,v in operators.items():
+		int_id = int(str_id)
 		if v['properties']['class'] == 'trigger-interval':
-			triggers[id] = {'cid': params[id]['cid'], 't': 'V', 'p': [params[id]['param1']]}
+			triggers[int_id] = {'cid': params[str_id]['cid'], 't': 'V', 'p': [params[str_id]['param1']]}
 		elif v['properties']['class'] == 'trigger-random':
-			triggers[id] =  {'cid': params[id]['cid'], 't': 'R', 'p': [params[id]['param1'], params[id]['param2']]}
+			triggers[int_id] =  {'cid': params[str_id]['cid'], 't': 'R', 'p': [params[str_id]['param1'], params[str_id]['param2']]}
 		elif v['properties']['class'] == 'trigger-input':
-			triggers[id] = {'cid': params[id]['cid'], 't': 'I', 'p': [params[id]['param1']]}
+			triggers[int_id] = {'cid': params[str_id]['cid'], 't': 'I', 'p': [params[str_id]['param1']]}
 
 	# iterate through triggers and build action arrays
-	for id, v in triggers.items():
+	for int_id, v in triggers.items():
 		#print ('Getting actions for op ' + params[id]['title'])
-		v['a'] = get_actions(id)
+		v['a'] = get_actions(str(int_id))
 
 	print (json.dumps(triggers, indent=2))
 	print ('String length: {0}'.format(len(json.dumps(triggers, separators=(',',':')))))
 
 	emit('send_graph', {'data': json.dumps(triggers, separators=(',',':'))})
 
-def get_actions(opid):
+def get_actions(str_opid):
 	params = json.load(open('data/params.json'))
 	data = json.load(open('data/graph.json'))
 	operators = data['operators']
@@ -222,8 +226,8 @@ def get_actions(opid):
 	actions = []
 	#links_copy = dict(links) # copy dict so as we iterate thru we can remove from original dict
 	for linkid,v in links.items():
-		from_opid = str(v['fromOperator']) # assign to variable for convenience
-		if from_opid == opid:
+		from_opid = v['fromOperator']
+		if str(from_opid) == str_opid:
 			#del links[from_id] # remove it since we have already added to triggers
 			to_opid = str(v['toOperator']) # operator id to which this link connects
 			#print ('Found link connecting from {0} to {1}'.format(params[from_opid]['title'], params[to_opid]['title']))
