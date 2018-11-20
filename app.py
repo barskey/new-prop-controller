@@ -1,5 +1,4 @@
-from threading import Lock
-from flask import Flask, render_template, session, request, url_for
+from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 import json, random
 import defaults
@@ -42,7 +41,7 @@ def connect():
 	print ('connect')
 	username = 'barskey@gmail.com'
 	pwd = 'CarlyAnn1102'
-	emit('log_response', {'response': 'Connected to socket server.'})
+	emit('log_response', {'response': 'Connecting to Particle...'})
 	emit('get_token', {'username': username, 'pwd': pwd})
 
 
@@ -112,8 +111,16 @@ def update_params(msg):
 
 @socketio.on('update_controller')
 def update_controller(msg):
-	cid = msg['cid'].decode('utf-8')
-	port = msg['port'].decode('utf-8')
+	cid = None
+	try:
+		cid = msg['cid'].decode('utf-8')
+	except AttributeError:
+		cid = msg['cid']
+	port = None
+	try:
+		port = msg['port'].decode('utf-8')
+	except AttributeError:
+		port = msg['port']
 	state = msg['val']
 	controllers = json.load(open('data/controllers.json'))
 	controllers[cid][port] = '1' if state else '0'
@@ -137,10 +144,8 @@ def save_to_file(msg):
 def delete_params(msg):
 	id = str(msg['id'])
 	params = json.load(open('data/params.json'))
-	print('Before delete:', params)
 	if params.get(id, None) is not None:
 		del params[id]
-		print('After delete:', params)
 		with open('data/params.json', 'w') as outfile:
 			json.dump(params, outfile)
 

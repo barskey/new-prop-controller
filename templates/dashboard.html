@@ -5,16 +5,16 @@
 <!-- Page specific JavaScript -->
 <script src="static/js/dashboard.js"></script>
 
-<div id="dashboard" style="height:86vh"></div>
+<div id="dashboard" style="height:88vh"></div>
 
 <!-- Sliding properties sidebar -->
-<div id="editOperator" class="my-auto" style="height: 28vh">
-	<div class="container">
-		<form class="form-inline" id="editOperator">
+<div id="editOperator" class="my-auto" style="height: 70vh">
+	<div class="container d-flex flex-column justify-content-end h-100">
+		<span class="h5 bg-dark text-white p-3 mt-1">Properties</span>
+		<form class="form-inline mb-auto" id="editOperator">
 			<input type="hidden" name="type" id="op-type" />
-			<ul class="list-group list-group-flush">
-				<li class="list-group-item"><h5>Properties</h5></li>
-				<li class="list-group-item edit-title">
+			<ul class="list-group list-group-flush w-100 h-100">
+				<li class="list-group-item edit-title d-none">
 					<div class="input-group">
 						<div class="input-group-prepend">
 							<span class="input-group-text">Name</span>
@@ -22,7 +22,7 @@
 						<input type="text" class="form-control" id="title" name="title">
 					</div>
 				</li>
-				<li class="list-group-item edit-timer">
+				<li class="list-group-item edit-timer d-none">
 					<div class="input-group">
 						<div class="input-group-prepend">
 							<span class="input-group-text">After</span>
@@ -33,7 +33,7 @@
 						</div>
 					</div>
 				</li>
-				<li class="list-group-item edit-interval">
+				<li class="list-group-item edit-interval d-none">
 					<div class="input-group">
 						<div class="input-group-prepend">
 							<span class="input-group-text">Every</span>
@@ -44,7 +44,7 @@
 						</div>
 					</div>
 				</li>
-				<li class="list-group-item edit-random">
+				<li class="list-group-item edit-random d-none">
 					<div class="input-group">
 						<div class="input-group-prepend">
 							<span class="input-group-text">Range</span>
@@ -56,17 +56,24 @@
 						</div>
 					</div>
 				</li>
-				<li class="list-group-item edit-output edit-input edit-link">
-					&nbsp;
+				<li class="list-group-item edit-output edit-input edit-link d-none">
 				</li>
-				<li class="list-group-item">
-					<button type="submit" class="btn btn-success" id="saveSelectedOp"><i class="fas fa-check"></i></button>
-					<button type="button" class="btn btn-secondary" id="cancelEdit"><i class="fas fa-ban"></i></button>
-					<button type="button" class="btn btn-danger" id="deleteSelectedOp"><i class="fas fa-trash"></i></button>
-					<button type="button" class="btn btn-danger" id="deleteSelectedLink"><i class="fas fa-trash"></i></button>
+				<li class="list-group-item text-right">
+					<button type="submit" class="btn btn-success d-none" id="saveSelectedOp"><i class="fas fa-check"></i></button>
+					<button type="button" class="btn btn-danger d-none" id="deleteSelectedOp"><i class="fas fa-trash"></i></button>
+					<button type="button" class="btn btn-danger d-none" id="deleteSelectedLink"><i class="fas fa-trash"></i></button>
 				</li>
 			</ul>
 		</form>
+		<span class="h5 bg-dark text-white p-3">Status</span>
+		<ul class="list-group list-group-flush" id="log">
+			<li class="list-group-item bg-light">&nbsp;</li>
+			<li class="list-group-item bg-light">&nbsp;</li>
+			<li class="list-group-item bg-light">&nbsp;</li>
+			<li class="list-group-item bg-light">&nbsp;</li>
+		</ul>
+		<span class="w-100 text-right p-2">
+			<button type="button" class="btn btn-secondary" id="sendGraph">Up-to-Date</button>
 	</div>
 </div>
 {% endblock %}
