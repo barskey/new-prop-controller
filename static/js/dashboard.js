@@ -20,6 +20,12 @@ $( function() {
 	  links: {}
   };
 
+  function logResponse(response, style) {
+    $('#log').prepend(
+      $('<li>').text( response ).addClass( 'text-' + style )
+    );
+  };
+
   var $dashboard = $( '#dashboard' );
 
   //var Particle = require('particle-api-js');
@@ -41,7 +47,7 @@ $( function() {
   socket.on('connect', function() {
     socket.emit('show_graph');
   });
-  
+
   socket.on('get_token',  function(msg) {
 	//3fc770faa4f820dd5503b18ae3bf9262be8430ba
     particle.login({username: msg.username, password: msg.pwd}).then(
@@ -94,27 +100,28 @@ $( function() {
 
   socket.on('send_graph', function(msg) {
 	if (token) {
-		var i;
 		if (!msg.complete) {
-			var publishEventSendGraph = particle.publishEvent({name: 'Graph' + msg.part, data: msg.data, auth: token});
+			var publishEventSendGraph = particle.publishEvent({name: 'Graph/' + msg.part, data: msg.data, auth: token});
 			publishEventSendGraph.then(
 			  function(data) {
 				if (data.body.ok) {
-					console.log("Event published successfully.");
-					i++;
+					console.log('Event published successfully.', data.body);
+          logResponse('Event published successfully.', 'success');
 				}
 			  },
 			  function(err) {
-				console.log("Failed to publish event: " + err);
+				  console.log('Failed to publish event:' + err);
+          logResponse('Failed to publish event.', 'danger');
 			  }
 			);
 		} else {
-			console.log ("Message complete." + i + " messages published.");
-			i = 0;
-			$( '#sendGraph' ).removeClass( 'btn-warning btn-success' ).addClass( 'btn-success').text( 'Sent');
+			console.log('Message complete.' + msg.part + ' messages published.');
+      logResponse('Message publish complete.', 'success');
+			$( '#sendGraph' ).removeClass( 'btn-warning btn-success' ).addClass( 'btn-success').text( 'Sent' );
 		}
 	} else {
-		console.log("Tried to publish graph but no valid token.");
+		console.log('Tried to publish graph but no valid token.');
+    logResponse('Tried to publish graph but no valid token.', 'warning');
 	}
   });
 
@@ -132,9 +139,7 @@ $( function() {
   });
 
   socket.on('log_response', function(msg) {
-    $('#log').prepend(
-		$('<li>').text( msg.response ).addClass( 'text-success' )
-	);
+    logResponse(msg.response, 'success');
   });
 
   socket.on('add_to_graph', function(msg) {
@@ -177,7 +182,7 @@ $( function() {
 			$dashboard.flowchart( 'deleteLink', opid );
 		}
 	});
-	
+
 	$( '#sendGraph' ).click ( function() {
 		socket.emit('parse_graph');
 	});

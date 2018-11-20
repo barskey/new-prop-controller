@@ -14,7 +14,7 @@ app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode=async_mode)
 
 posx, posy = 20, 20 # starting position of graph nodes
-
+graphNeedsUpdate = True;
 
 @app.route('/')
 def index():
@@ -218,12 +218,11 @@ def parse_graph_data():
 
 	part = 1
 	for trigger_op_id,trigger in triggers.items():
-		multipart = '/' + str(part)
 		print('Sending Trigger:', trigger)
-		emit('send_graph', {'part': multipart, 'data': json.dumps(trigger, separators=(',',':')), 'complete': False})
+		emit('send_graph', {'part': str(part), 'data': json.dumps(trigger, separators=(',',':')), 'complete': False})
 		part = part + 1
 	emit('send_graph', {'part': '', 'data': '', 'complete': True})
-	
+
 
 def get_actions(str_opid):
 	params = json.load(open('data/params.json'))
