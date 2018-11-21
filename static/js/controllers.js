@@ -1,6 +1,17 @@
 $(document).ready(function() {
   $('#controllerMenu').addClass( 'active' );
 
+  var $sideMenu = $( '#editController' );
+  $sideMenu.BootSideMenu({
+  	side: 'right',
+  	pushBody: false,
+  	remember: false,
+//  	autoClose: true,
+  	width: '300px',
+  	duration: 300,
+    closeOnClick: false
+  });
+
   //------------------------- Functions ----------------------------------//
   function logResponse( response, style ) {
     $( '#log' ).prepend(
@@ -77,7 +88,7 @@ $(document).ready(function() {
 
   $( ':checkbox' ).change( function() {
     console.log('checkbox changed');
-    var id = $( this ).parents( '.card' ).attr( 'id' );
+    var id = $( this ).parents( 'tr' ).attr( 'id' );
     var outport = $( this ).attr( 'data-port' );
     var state = $( this ).prop( 'checked' );
     socket.emit( 'update_controller', {cid: id, port: outport, val: state} );

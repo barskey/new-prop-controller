@@ -107,7 +107,7 @@ $( function() {
 	  });
   });
 
-  socket.on('send_graph', function(msg) {
+  socket.on( 'send_graph', function(msg) {
   	if (token) {
       var strPart;
       if (!msg.complete) {
