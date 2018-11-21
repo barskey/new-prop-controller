@@ -12,11 +12,12 @@
     </div>
   </div>
   <div class="row">
-    <table class="table table-striped table-hover col-md-8">
+    <table class="table table-striped table-hover">
       <caption>Gray: Disconnected</caption>
       <thead>
         <tr>
-          <th scope="col" class="text-center">ID</th>
+          <th scope="col">Name</th>
+          <th scope="col">ID</th>
           <th scope="col" class="text-center">Input Pullup</th>
           <th scope="col" class="text-center">Port A</th>
           <th scope="col" class="text-center">Port B</th>
@@ -27,79 +28,36 @@
       <tbody>
         {% for cid, data in controllers.items() %}
         <tr id="{{ cid }}" class="table-secondary">
-          <td>{{ cid }}</td>
-          <td class="align-middle text-center"><input type="checkbox" class="triggerState" data-toggle="toggle" {% if data.input == "1" %}checked=""{% endif %} data-onstyle="info" data-on="UP" data-off="DOWN" data-size="small" data-port="input"></td>
-          <td class="align-middle text-center"><input type="checkbox" data-toggle="toggle" {% if data.A == "1" %}checked=""{% endif %} data-onstyle="info" data-size="small" data-port="A"></td>
-          <td class="align-middle text-center"><input type="checkbox" data-toggle="toggle" {% if data.B == "1" %}checked=""{% endif %} data-onstyle="info" data-size="small" data-port="B"></td>
-          <td class="align-middle text-center"><input type="checkbox" data-toggle="toggle" {% if data.C == "1" %}checked=""{% endif %} data-onstyle="info" data-size="small" data-port="C"></td>
-          <td class="align-middle text-center"><input type="checkbox" data-toggle="toggle" {% if data.D == "1" %}checked=""{% endif %} data-onstyle="info" data-size="small" data-port="D"></td>
+          <td class="align-middle">
+            <div class="input-group input-group-sm">
+              <input type="text" class="form-control" name="cname" readonly="readonly" />
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button">Rename</button>
+              </div>
+            </div>
+          </td>
+          <td class="align-middle">
+            {{ cid }}
+          </td>
+          <td class="align-middle text-center">
+            <input type="checkbox" class="triggerState" data-toggle="toggle" {% if data.input == "1" %}checked=""{% endif %} data-onstyle="info" data-on="UP" data-off="DOWN" data-size="small" data-port="input">
+          </td>
+          <td class="align-middle text-center">
+            <input type="checkbox" data-toggle="toggle" {% if data.A == "1" %}checked=""{% endif %} data-onstyle="info" data-size="small" data-port="A">
+          </td>
+          <td class="align-middle text-center">
+            <input type="checkbox" data-toggle="toggle" {% if data.B == "1" %}checked=""{% endif %} data-onstyle="info" data-size="small" data-port="B">
+          </td>
+          <td class="align-middle text-center">
+            <input type="checkbox" data-toggle="toggle" {% if data.C == "1" %}checked=""{% endif %} data-onstyle="info" data-size="small" data-port="C">
+          </td>
+          <td class="align-middle text-center">
+            <input type="checkbox" data-toggle="toggle" {% if data.D == "1" %}checked=""{% endif %} data-onstyle="info" data-size="small" data-port="D">
+          </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
-  </div>
-</div>
-
-<!-- Sliding properties sidebar -->
-<div id="editController" class="my-auto" style="height: 89vh">
-	<div class="container d-flex flex-column justify-content-end h-100">
-		<span class="h5 bg-dark text-white p-2 mt-1">Properties</span>
-		<input type="hidden" name="type" id="cid" />
-		<ul class="list-group list-group-flush w-100 h-100">
-      <li class="list-group-item edit-cid">
-				<div class="input-group input-group-sm">
-					<div class="input-group-prepend">
-						<span class="input-group-text">ID</span>
-					</div>
-					<input type="text" class="form-control" id="cidName" name="cidName" readonly>
-				</div>
-			</li>
-      <li class="list-group-item">
-				<div class="input-group input-group-sm">
-					<div class="input-group-prepend">
-						<span class="input-group-text">Input</span>
-					</div>
-					<input type="text" class="form-control" id="inputName" name="inputName">
-				</div>
-			</li>
-			<li class="list-group-item">
-				<div class="input-group input-group-sm">
-					<div class="input-group-prepend">
-						<span class="input-group-text">A</span>
-					</div>
-					<input type="text" class="form-control" id="AName" name="AName">
-				</div>
-			</li>
-      <li class="list-group-item">
-				<div class="input-group input-group-sm">
-					<div class="input-group-prepend">
-						<span class="input-group-text">B</span>
-					</div>
-					<input type="text" class="form-control" id="BName" name="BName">
-				</div>
-			</li>
-      <li class="list-group-item">
-				<div class="input-group input-group-sm">
-					<div class="input-group-prepend">
-						<span class="input-group-text">C</span>
-					</div>
-					<input type="text" class="form-control" id="CName" name="CName">
-				</div>
-			</li>
-      <li class="list-group-item">
-				<div class="input-group input-group-sm">
-					<div class="input-group-prepend">
-						<span class="input-group-text">D</span>
-					</div>
-					<input type="text" class="form-control" id="DName" name="DName">
-				</div>
-			</li>
-		</ul>
-		<span class="h5 bg-dark text-white p-2 collapsed">Status</span>
-		<ul class="list-group list-group-flush h-25" id="log">
-			<li class="list-group-item bg-light">&nbsp;</li>
-      <li class="list-group-item bg-light">&nbsp;</li>
-		</ul>
   </div>
 </div>
 {% endblock %}

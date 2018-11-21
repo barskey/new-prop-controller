@@ -1,17 +1,6 @@
 $(document).ready(function() {
   $('#controllerMenu').addClass( 'active' );
 
-  var $sideMenu = $( '#editController' );
-  $sideMenu.BootSideMenu({
-  	side: 'right',
-  	pushBody: false,
-  	remember: false,
-//  	autoClose: true,
-  	width: '300px',
-  	duration: 300,
-    closeOnClick: false
-  });
-
   //------------------------- Functions ----------------------------------//
   function logResponse( response, style ) {
     $( '#log' ).prepend(
@@ -92,5 +81,17 @@ $(document).ready(function() {
     var outport = $( this ).attr( 'data-port' );
     var state = $( this ).prop( 'checked' );
     socket.emit( 'update_controller', {cid: id, port: outport, val: state} );
+  });
+
+  $( '.btn' ).click( function () {
+    $( this ).parents( '.input-group' ).children( 'input' ).attr( 'readonly', false );
+  });
+
+  $( "input[name='cname']" ).change( function () {
+    var id = $( this ).parents( 'tr' ).attr( 'id' );
+    var name = $( this ).val();
+    console.log ('cid:' + id + ' Name:' + name);
+    //socket.emit( 'update_params' );
+    $( this ).attr( 'readonly', true );
   });
 });
