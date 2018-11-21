@@ -53,6 +53,7 @@ $( function() {
   // server is established.
   socket.on( 'connect', function() {
     socket.emit( 'show_graph' );
+    console.log ( 'dashboard.js connected via socketio.' );
   });
 
   socket.on('get_token',  function(msg) {
@@ -108,9 +109,9 @@ $( function() {
   });
 
   socket.on( 'send_graph', function(msg) {
-  	if (token) {
+  	if ( token ) {
       var strPart;
-      if (!msg.complete) {
+      if ( !msg.complete ) {
         strPart = msg.part;
         var publishEventSendGraph = particle.publishEvent( {name: 'Graph/' + strPart, data: msg.data, auth: token, private: 'true'} );
         publishEventSendGraph.then(
@@ -146,7 +147,7 @@ $( function() {
   });
 
   socket.on( 'log_response', function( msg ) {
-    logResponse( msg.response, 'success' );
+    logResponse( msg.response, msg.style );
   });
 
   socket.on( 'add_to_graph', function( msg ) {
@@ -158,7 +159,12 @@ $( function() {
   $( 'a.add-operator' ).click( function() {
     var type = $( this ).attr( 'data-type' );
     var cid = $( this ).attr( 'data-cid' );
-    socket.emit( 'add_op', {type: type, cid: cid} );
+    var port = '';
+    if ( type == 'output' )
+    {
+      port = $( this ).attr( 'data-port' );
+    }
+    socket.emit( 'add_op', {type: type, cid: cid, port: port} );
   });
 
 	$( '#saveSelectedOp' ).click ( function() {

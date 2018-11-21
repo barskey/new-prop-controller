@@ -30,7 +30,6 @@ $(document).ready(function() {
   });
 
   socket.on('get_token',  function( msg ) {
-    //3fc770faa4f820dd5503b18ae3bf9262be8430ba
     particle.login( {username: msg.username, password: msg.pwd} ).then(
       function( data ) {
         token = data.body.access_token;
@@ -66,6 +65,10 @@ $(document).ready(function() {
     }
   });
 
+  socket.on( 'log_response', function( msg ) {
+    logResponse( msg.response, msg.style );
+  });
+
   $( '#clearControllers' ).click( function() {
 	   socket.emit( 'clear_data', {data: 'all'} );
   });
@@ -80,7 +83,7 @@ $(document).ready(function() {
     var id = $( this ).parents( 'tr' ).attr( 'id' );
     var outport = $( this ).attr( 'data-port' );
     var state = $( this ).prop( 'checked' );
-    socket.emit( 'update_controller', {cid: id, port: outport, val: state} );
+    socket.emit( 'update_controller', {cid: id, key: outport, val: state} );
   });
 
   $( '.btn' ).click( function () {
@@ -90,8 +93,7 @@ $(document).ready(function() {
   $( "input[name='cname']" ).change( function () {
     var id = $( this ).parents( 'tr' ).attr( 'id' );
     var name = $( this ).val();
-    console.log ('cid:' + id + ' Name:' + name);
-    //socket.emit( 'update_params' );
+    socket.emit( 'update_controller', {cid: id, key: 'name', val: name} );
     $( this ).attr( 'readonly', true );
   });
 });

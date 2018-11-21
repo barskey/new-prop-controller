@@ -29,11 +29,12 @@ def dashboard():
 	inputs = []
 	outputs = []
 	for cid, data in json.load(open('data/controllers.json')).items():
-		inputs.append(cid)
-		outputs.append(cid + '-A')
-		outputs.append(cid + '-B')
-		outputs.append(cid + '-C')
-		outputs.append(cid + '-D')
+		name = data['name']
+		inputs.append({'id': cid, 'name': name})
+		outputs.append({'id': cid, 'name': name, 'port': 'A'})
+		outputs.append({'id': cid, 'name': name, 'port': 'B'})
+		outputs.append({'id': cid, 'name': name, 'port': 'C'})
+		outputs.append({'id': cid, 'name': name, 'port': 'D'})
 	return render_template('dashboard.html', async_mode=socketio.async_mode, inputs=inputs, outputs=outputs)
 
 
@@ -42,7 +43,7 @@ def connect():
 	print ('connect')
 	username = 'barskey@gmail.com'
 	pwd = 'CarlyAnn1102'
-	emit('log_response', {'response': 'Connecting to Particle...'})
+	emit('log_response', {'response': 'Connecting to Particle...', 'style': 'warning'})
 	emit('get_token', {'username': username, 'pwd': pwd})
 
 
@@ -67,16 +68,17 @@ def controller_connected(msg):
 
 @socketio.on('add_op')
 def add_op(msg):
+	controllers = json.load(open('data/controllers.json'))  # get existing controllers
 	global posx, posy
 	op = None
 	if msg['type'] == 'input':
 		op = defaults.TRIGGERS[msg['type']]
-		op['properties']['title'] = 'Input -> ' + msg['cid']
+		op['properties']['title'] = 'Trigger: ' + controllers[msg['cid']]['name']
 	elif msg['type'] in ['interval', 'random', 'timer']:
 		op = defaults.TRIGGERS[msg['type']]
 	elif msg['type'] == 'output':
 		op = defaults.ACTIONS[msg['type']]
-		op['properties']['title'] = 'Output -> ' + msg['cid']
+		op['properties']['title'] = controllers[msg['cid']]['name'] + ' > ' + msg['port']
 	else:
 		print(msg['type'], msg)
 		return
@@ -127,18 +129,22 @@ def update_controller(msg):
 		cid = msg['cid'].decode('utf-8')
 	except AttributeError:
 		cid = msg['cid']
-	port = None
+	key = None
 	try:
-		port = msg['port'].decode('utf-8')
+		key = msg['key'].decode('utf-8')
 	except AttributeError:
-		port = msg['port']
-	state = msg['val']
+		key = msg['key']
+	value = msg['val']
 	controllers = json.load(open('data/controllers.json'))
-	controllers[cid][port] = '1' if state else '0'
+	if key == 'name':
+		controllers[cid][key] = value
+	else:
+		controllers[cid][key] = '1' if value else '0'
 	with open('data/controllers.json', 'w') as outfile:
 		json.dump(controllers, outfile)
 	strDefaults = controllers[cid]['input'] + controllers[cid]['A'] + controllers[cid]['B'] + controllers[cid]['C'] + controllers[cid]['D']
 	emit('send_defaults', {'data': strDefaults, 'cid': cid})
+	emit('log_response', {'response': 'Saved controller settings.', 'style': 'success'})
 
 
 @socketio.on('get_op_params')
