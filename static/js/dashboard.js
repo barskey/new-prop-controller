@@ -56,7 +56,6 @@ $( function() {
   });
 
   socket.on('get_token',  function(msg) {
-    console.log('get_token');
     //3fc770faa4f820dd5503b18ae3bf9262be8430ba
     particle.login( {username: msg.username, password: msg.pwd} ).then(
       function( data ) {

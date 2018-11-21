@@ -126,6 +126,8 @@ def update_controller(msg):
 	controllers[cid][port] = '1' if state else '0'
 	with open('data/controllers.json', 'w') as outfile:
 		json.dump(controllers, outfile)
+	strDefaults = controllers[cid]['input'] + controllers[cid]['A'] + controllers[cid]['B'] + controllers[cid]['C'] + controllers[cid]['D']
+	emit('send_defaults', {'data': strDefaults, 'cid': cid})
 
 
 @socketio.on('get_op_params')

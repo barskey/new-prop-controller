@@ -1,5 +1,18 @@
 $(document).ready(function() {
-  $('#controllerMenu').addClass('active');
+  $('#controllerMenu').addClass( 'active' );
+
+  //------------------------- Functions ----------------------------------//
+  function logResponse( response, style ) {
+    $( '#log' ).prepend(
+      $( '<li>' ).text( response ).addClass( 'list-group-item bg-light text-' + style )
+    );
+    $( '#log li:last-child').remove();
+  };
+
+  //var Particle = require('particle-api-js');
+  var particle = new Particle();
+  var token;
+
   // An application can open a connection on multiple namespaces, and
   // Socket.IO will multiplex all those connections on a single
   // physical channel. If you don't care about multiple channels, you
@@ -13,48 +26,57 @@ $(document).ready(function() {
   // The callback function is invoked when a connection with the
   // server is established.
   socket.on('connect', function() {
-    socket.emit('my_event', {data: 'I\'m connected!'});
-  });
-  // Event handler for server sent data.
-  // The callback function is invoked whenever the server emits data
-  // to the client. The data is then displayed in the "Received"
-  // section of the page.
-  socket.on('my_response', function(msg) {
-    $('#log').text('Received #' + msg.count + ': ' + msg.data).html();
+    console.log ( 'Contollers.js connected via socketio.' );
   });
 
-  socket.on('controller_ping', function(msg) {
-    console.log(msg.data);
-    socket.emit('ping_received', {data: msg.data});
+  socket.on('get_token',  function( msg ) {
+    //3fc770faa4f820dd5503b18ae3bf9262be8430ba
+    particle.login( {username: msg.username, password: msg.pwd} ).then(
+      function( data ) {
+        token = data.body.access_token;
+        console.log( 'Token received.' );
+        logResponse( 'Token received.', 'success' );
+      },
+      function ( err ) {
+        console.log( 'Could not log in.', err );
+        logResponse( 'Could not log in to Particle.', 'danger' );
+      }
+    );
   });
 
-  // Handlers for the different forms in the page.
-  // These accept data from the user and send it to the server in a
-  // variety of ways
-  $('form#emit').submit(function(event) {
-    socket.emit('my_event', {data: $('#emit_data').val()});
-    return false;
+  socket.on( 'send_defaults', function( msg ) {
+    if (token) {
+      // publish event to Partile cloud with default controller states
+      var publishEventDefaults = particle.publishEvent( {name: 'Defaults/' + msg.cid, data: msg.data, auth: token, private: 'true'} );
+      publishEventDefaults.then(
+        function( data ) {
+          if ( data.body.ok ) {
+            console.log( 'Defaults published successfully.' );
+            logResponse( 'Defaults published successfully.', 'success' );
+          }
+        },
+        function( err ) {
+          console.log( 'Defaults publish failed.' + err );
+          logResponse( 'Defaults publish failed.', 'danger' );
+        }
+      );
+    } else {
+      console.log( 'No valid token.' );
+      logResponse( 'No valid token.', 'warning' );
+    }
   });
 
-  $('form#broadcast').submit(function(event) {
-    socket.emit('my_broadcast_event', {data: $('#broadcast_data').val()});
-    return false;
-  });
-
-  $( '#addController' ).click( function() {
-    socket.emit( 'sim_controller_connected' );
-  });
-  
   $( '#clearControllers' ).click( function() {
-	socket.emit( 'clear_data', {data: 'all'} );
+	   socket.emit( 'clear_data', {data: 'all'} );
   });
 
   $( '#clearGraph' ).click( function() {
-	  console.log('cleargraph');
-	socket.emit( 'clear_data', {data: 'graph'} );
+	   console.log( 'cleargraph' );
+	   socket.emit( 'clear_data', {data: 'graph'} );
   });
 
   $( ':checkbox' ).change( function() {
+    console.log('checkbox changed');
     var id = $( this ).parents( '.card' ).attr( 'id' );
     var outport = $( this ).attr( 'data-port' );
     var state = $( this ).prop( 'checked' );
