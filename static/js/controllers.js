@@ -46,7 +46,7 @@ $(document).ready(function() {
   socket.on( 'send_defaults', function( msg ) {
     if (token) {
       // publish event to Partile cloud with default controller states
-      var publishEventDefaults = particle.publishEvent( {name: 'Defaults/' + msg.cid, data: msg.data, auth: token, private: 'true'} );
+      var publishEventDefaults = particle.publishEvent( {name: 'defaults/' + msg.cid, data: msg.data, auth: token, private: 'true'} );
       publishEventDefaults.then(
         function( data ) {
           if ( data.body.ok ) {

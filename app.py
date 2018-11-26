@@ -207,18 +207,18 @@ def get_next_opid():
 
 # Parse graph json data into json representation of action/event data to send to controllers.
 # See defaults.py for dict structure.
-# First find all operators of type interval, random or trigger - these are required to trigger other actions.
-# Then build output structure in the form:
-# triggers
-# {<from opid>: {cid: <contoller id>,
-#                t(type): <R(random), (V)interval, (I)input>
-#                p(params): [<param1, param2>]
-#                a(actions): []}}
-# actions
-# {<from opid>: {cid: <controller id>,
-#                t(type): <O(output), T(timer), S(sound)>,
-#                p(params): <A(port name), ##(sound id), #.#(time in s)>,
-#                a(actions): []}}
+# triggers - each trigger sent as JSON:
+# {cid: <contoller id>,
+#  t(type): <R(random), (V)interval, (I)input>,
+#  p(params): [<param1, param2>],
+#  a(actions): []
+# }
+# a(actions) - an array of objects like:
+# [ {cid: <controller id>,
+#    t(type): <O(output), T(timer), S(sound)>,
+#    p(params): <A(port name), ##(sound id), #.#(time in s)>,
+#    a(actions): []
+# } ]
 @socketio.on('parse_graph')
 def parse_graph_data():
 	params = json.load(open('data/params.json'))
@@ -229,6 +229,7 @@ def parse_graph_data():
 
 	triggers = {}
 
+	# First find all operators of type interval, random or trigger - these are required to trigger other actions.
 	for str_id, v in operators.items():
 		int_id = int(str_id)
 		if v['properties']['class'] == 'trigger-interval':
@@ -252,7 +253,7 @@ def parse_graph_data():
 		v['a'] = get_actions(str(int_id))
 
 	#print (json.dumps(triggers, indent=2))
-	#print ('String length: {0}'.format(len(json.dumps(triggers, separators=(',',':')))))
+	print ('String length: {0}'.format(len(json.dumps(triggers, separators=(',',':')))))
 
 	part = 1
 	for trigger_op_id, trigger in triggers.items():
