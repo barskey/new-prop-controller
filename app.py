@@ -257,8 +257,9 @@ def parse_graph_data():
 
 	part = 1
 	for trigger_op_id, trigger in triggers.items():
-		print('Sending Trigger:', trigger)
-		emit('send_graph', {'part': str(part), 'data': json.dumps(trigger, separators=(',', ':')), 'complete': False})
+		data = json.dumps(trigger, separators=(',', ':'))
+		print('Sending Trigger:', data)
+		emit('send_graph', {'part': str(part), 'data': data, 'complete': False})  # TODO need to check that len is not more than 300 bytes
 		part = part + 1
 	emit('send_graph', {'part': '', 'data': '', 'complete': True})
 
