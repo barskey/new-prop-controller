@@ -16,6 +16,8 @@ socketio = SocketIO(app, async_mode=async_mode)
 posx, posy = 20, 20  # starting position of graph nodes
 
 
+SEND_LENGTH = 250  # number of characters to send as publish event (actually is SEND_LENGTH+1 since it starts at 0)
+
 @app.route('/')
 def index():
 	controllers = json.load(open('data/controllers.json'))
@@ -227,40 +229,50 @@ def parse_graph_data():
 	#links = data['links']
 	#print (json.dumps(links, indent=2))
 
-	triggers = {}
+	triggers = []
 
 	# First find all operators of type interval, random or trigger - these are required to trigger other actions.
 	for str_id, v in operators.items():
 		int_id = int(str_id)
 		if v['properties']['class'] == 'trigger-interval':
-			triggers[int_id] = {'cid': params[str_id]['cid'], 't': 'V', 'p': [params[str_id]['param1']]}
+			triggers.append({
+				'opid': str_id,
+				'cid': params[str_id]['cid'],
+				't': 'V',
+				'p': [params[str_id]['param1']]
+			})
 		elif v['properties']['class'] == 'trigger-random':
-			triggers[int_id] =  {
+			triggers.append({
+				'opid': str_id,
 				'cid': params[str_id]['cid'],
 				't': 'R',
 				'p': [params[str_id]['param1'], params[str_id]['param2']]
-			}
+			})
 		elif v['properties']['class'] == 'trigger-input':
-			triggers[int_id] = {
+			triggers.append({
+				'opid': str_id,
 				'cid': params[str_id]['cid'],
 				't': 'I',
 				'p': [params[str_id]['param1']]
-			}
+			})
 
 	# iterate through triggers and build action arrays
-	for int_id, v in triggers.items():
+	for trigger in triggers:
 		#print ('Getting actions for op ' + params[id]['title'])
-		v['a'] = get_actions(str(int_id))
+		trigger['a'] = get_actions(str(trigger['opid']))
 
 	#print (json.dumps(triggers, indent=2))
 	print ('String length: {0}'.format(len(json.dumps(triggers, separators=(',',':')))))
 
 	part = 1
-	for trigger_op_id, trigger in triggers.items():
-		data = json.dumps(trigger, separators=(',', ':'))
-		print('Sending Trigger:', data)
-		emit('send_graph', {'part': str(part), 'data': data, 'complete': False})  # TODO need to check that len is not more than 300 bytes
+	counter = 0
+	data = json.dumps(triggers, separators=(',', ':'))  # TODO Get rid of all opid keys to save space
+	#print('Sending Trigger:', data)
+	while counter < len(data):
+		send_data = data[counter:counter + SEND_LENGTH]  # send 250 characters at a time
+		emit('send_graph', {'part': str(part), 'data': send_data, 'complete': False})
 		part = part + 1
+		counter = counter + SEND_LENGTH
 	emit('send_graph', {'part': '', 'data': '', 'complete': True})
 
 

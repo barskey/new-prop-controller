@@ -35,6 +35,7 @@ $(document).ready(function() {
         token = data.body.access_token;
         console.log( 'Token received.' );
         logResponse( 'Token received.', 'success' );
+        particle.ping('0123456789abcdef01234567');
       },
       function ( err ) {
         console.log( 'Could not log in.', err );
