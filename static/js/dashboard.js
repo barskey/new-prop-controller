@@ -113,7 +113,7 @@ $( function() {
       var strPart;
       if ( !msg.complete ) {
         strPart = msg.part;
-        var publishEventSendGraph = particle.publishEvent( {name: 'Graph/' + strPart, data: msg.data, auth: token, private: 'true'} );
+        var publishEventSendGraph = particle.publishEvent( {name: 'Graph/' + strPart, data: msg.data, auth: token, isPrivate: True} );
         publishEventSendGraph.then(
           function( data ) {
             if ( data.body.ok ) {

@@ -35,7 +35,11 @@ $(document).ready(function() {
         token = data.body.access_token;
         console.log( 'Token received.' );
         logResponse( 'Token received.', 'success' );
-        particle.ping('0123456789abcdef01234567');
+        var devicesPr = particle.getDevice({ deviceId: 'e00fce68bc7c58ad7cb7f698', auth: token });
+        devicesPr.then(
+          function( devices ) { console.log( 'Device attrs:', devices );},
+          function( err ) { console.log( 'API call failed: ', err );}
+        );
       },
       function ( err ) {
         console.log( 'Could not log in.', err );
