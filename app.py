@@ -265,18 +265,9 @@ def parse_graph_data():
 	#print (json.dumps(triggers, indent=2))
 	print ('String length: {0}'.format(len(json.dumps(triggers, separators=(',',':')))))
 
-	part = 1
-	counter = 0
 	data = json.dumps(triggers, separators=(',', ':'))  # TODO Get rid of all opid keys to save space
 	#print('Sending Trigger:', data)
-	while counter < len(data):
-		send_data = data[counter:counter + SEND_LENGTH]  # send 250 characters at a time
-		print (send_data)
-		emit('send_graph', {'part': str(part), 'data': send_data, 'complete': False})
-		part = part + 1
-		counter = counter + SEND_LENGTH
-
-	emit('send_graph', {'part': '', 'data': '', 'complete': True})
+	emit('send_graph', {'data': data})
 
 
 def get_actions(str_opid):

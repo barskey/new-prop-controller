@@ -109,7 +109,6 @@ $( function() {
   });
 
   function publish_event( name, data ) {
-    console.log(name);
     var publishEventSendGraph = particle.publishEvent(
       {name: name, data: data, auth: token, isPrivate: true}
     );
@@ -129,13 +128,18 @@ $( function() {
 
   socket.on( 'send_graph', function(msg) {
   	if ( token ) {
-      var strPart;
-      if ( !msg.complete ) {
-        strPart = msg.part;
-        setTimeout ( function() { publish_event( 'Graph/' + strPart, msg.data ); }, 5000 );
-      } else {
-        $( '#sendGraph' ).removeClass( 'btn-warning btn-success' ).addClass( 'btn-success').text( 'Sent' );
+      var counter = 0;
+      var i = 0;
+      // send publish events in chunks 250 characters or less
+      while( counter < msg.data.length ) {
+        var part = msg.data.substring( counter, counter + 250 );
+        var t = i * 1000;
+        var name = 'Graph/' + i.toString();
+        setTimeout ( publish_event, t, name, part ); // deay them by 1 second to prevent them from caching together
+        counter += 250;
+        i++;
       }
+      setTimeout ( function () { $( '#sendGraph' ).removeClass( 'btn-warning btn-success' ).addClass( 'btn-success').text( 'Sent' ) }, i * 1000 );
     } else {
       console.log( 'No valid token.' );
       logResponse( 'No valid token.', 'warning' );
