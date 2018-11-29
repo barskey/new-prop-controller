@@ -35,9 +35,12 @@ $(document).ready(function() {
         token = data.body.access_token;
         console.log( 'Token received.' );
         logResponse( 'Token received.', 'success' );
-        var devicesPr = particle.getDevice({ deviceId: 'e00fce68bc7c58ad7cb7f698', auth: token });
+        var devicesPr = particle.listDevices({ auth: token });
         devicesPr.then(
-          function( devices ) { console.log( 'Device attrs:', devices );},
+          function( devices ) {
+            console.log( 'Devices found:', devices );
+            socket.emit( 'got_devices', {data: devices} );
+          },
           function( err ) { console.log( 'API call failed: ', err );}
         );
       },
@@ -51,7 +54,7 @@ $(document).ready(function() {
   socket.on( 'send_defaults', function( msg ) {
     if (token) {
       // publish event to Partile cloud with default controller states
-      var publishEventDefaults = particle.publishEvent( {name: 'defaults/' + msg.cid, data: msg.data, auth: token, isPrivate: True} );
+      var publishEventDefaults = particle.publishEvent( {name: 'defaults/' + msg.cid, data: msg.data, auth: token, isPrivate: true} );
       publishEventDefaults.then(
         function( data ) {
           if ( data.body.ok ) {
@@ -96,9 +99,16 @@ $(document).ready(function() {
   });
 
   $( "input[name='cname']" ).change( function () {
+    var $nameInput = $( this );
     var id = $( this ).parents( 'tr' ).attr( 'id' );
     var name = $( this ).val();
-    socket.emit( 'update_controller', {cid: id, key: 'name', val: name} );
-    $( this ).attr( 'readonly', true );
+    particle.renameDevice({ deviceId: id, name: name, auth: token }).then(
+      function( msg ) {
+        console.log( 'Renamed ' + id + ' to: ' + name );
+        socket.emit( 'update_controller', {cid: id, key: 'name', val: name} );
+        $nameInput.attr( 'readonly', true );
+      },
+      function( err ) { console.log( 'Rename API call failed: ', err );}
+    );
   });
 });

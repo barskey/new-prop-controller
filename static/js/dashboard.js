@@ -9,10 +9,10 @@ $( function() {
   	side: 'right',
   	pushBody: false,
   	remember: false,
-//  	autoClose: true,
+  	autoClose: true,
   	width: '300px',
   	duration: 300,
-    closeOnClick: false
+    closeOnClick: true
   });
 
   var data = {
@@ -82,19 +82,19 @@ $( function() {
 				$( '#sendGraph' ).removeClass( 'btn-warning btn-success' ).addClass( 'btn-warning').text( 'Send Data');
         return true;
 			},
-			onOperatorSelect: function ( opId ) {
-					socket.emit( 'get_op_params', { id: opId } );
+			onOperatorSelect: function ( opid ) {
+					socket.emit( 'get_op_params', { opid: opid } );
 					return true;
 			},
 			onOperatorUnselect: function () {
 				hideSideMenuProperties();
 				return true;
 			},
-			onOperatorDelete: function ( opId ) {
-				socket.emit( 'delete_op_params', { id: opId } );
+			onOperatorDelete: function ( opid ) {
+				socket.emit( 'delete_op_params', { opid: opid } );
 				return true;
 			},
-			onLinkSelect: function ( opId ) {
+			onLinkSelect: function ( opid ) {
         hideSideMenuProperties();
 				$( '.edit-link' ).removeClass( 'd-none' );
 				$( '#deleteSelectedLink' ).removeClass( 'd-none');
@@ -162,8 +162,8 @@ $( function() {
   });
 
   socket.on( 'add_to_graph', function( msg ) {
-    $dashboard.flowchart( 'createOperator', msg.id, msg.data );
-    $dashboard.flowchart( 'selectOperator', msg.id );
+    $dashboard.flowchart( 'createOperator', msg.opid, msg.data );
+    $dashboard.flowchart( 'selectOperator', msg.opid );
   });
 
   //------------------------- Click Handlers ----------------------------------//
@@ -191,7 +191,7 @@ $( function() {
 	$( '#deleteSelectedOp' ).click ( function() {
 		var opid = $dashboard.flowchart( 'getSelectedOperatorId' );
 		if (opid) {
-			socket.emit( 'delete_op_params', { id: opid });
+			socket.emit( 'delete_op_params', { opid: opid });
 			$dashboard.flowchart( 'deleteOperator', opid );
 		}
 	});

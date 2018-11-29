@@ -33,26 +33,41 @@ def dashboard():
 	outputs = []
 	for cid, data in json.load(open('data/controllers.json')).items():
 		name = data['name']
-		inputs.append({'id': cid, 'name': name})
-		outputs.append({'id': cid, 'name': name, 'port': 'A'})
-		outputs.append({'id': cid, 'name': name, 'port': 'B'})
-		outputs.append({'id': cid, 'name': name, 'port': 'C'})
-		outputs.append({'id': cid, 'name': name, 'port': 'D'})
+		inputs.append({'cid': cid, 'name': name})
+		outputs.append({'cid': cid, 'name': name, 'port': 'A'})
+		outputs.append({'cid': cid, 'name': name, 'port': 'B'})
+		outputs.append({'cid': cid, 'name': name, 'port': 'C'})
+		outputs.append({'cid': cid, 'name': name, 'port': 'D'})
 	return render_template('dashboard.html', async_mode=socketio.async_mode, inputs=inputs, outputs=outputs)
 
 
 @socketio.on('connect')
 def connect():
-	print ('connect')
+	#print('Logging in to Particle...')
 	username = 'barskey@gmail.com'
 	pwd = 'CarlyAnn1102'
 	emit('log_response', {'response': 'Connecting to Particle...', 'style': 'warning'})
 	emit('get_token', {'username': username, 'pwd': pwd})
 
 
+@socketio.on('got_devices')
+def got_devices(msg):
+	devices = msg['data']['body']
+	for controller in devices:
+		cid = controller['id']
+		controllers = json.load(open('data/controllers.json'))  # get existing controllers
+		if controllers.get(cid, None) is None:
+			controllers[cid] = defaults.CONTROLLER  # add to existing controllers
+			controllers[cid]['name'] = controller['name']
+			with open('data/controllers.json', 'w') as outfile:  # write to file
+				json.dump(controllers, outfile)
+			# socketio.emit('add_controller, {}')
+			print('Controller id {0} added.'.format(cid))
+
+
 @socketio.on('show_graph')
 def load_graph():
-	print('connected')
+	#print('Logged in.')
 	data = json.load(open('data/graph.json'))
 	emit('create_graph', {'data': data})
 
@@ -73,27 +88,29 @@ def controller_connected(msg):
 def add_op(msg):
 	controllers = json.load(open('data/controllers.json'))  # get existing controllers
 	global posx, posy
+	cid = msg.get('cid', '')
 	op = None
 	if msg['type'] == 'input':
 		op = defaults.TRIGGERS[msg['type']]
-		op['properties']['title'] = 'Trigger: ' + controllers[msg['cid']]['name']
+		op['properties']['title'] = 'Trigger: ' + controllers[cid]['name']
 	elif msg['type'] in ['interval', 'random', 'timer']:
 		op = defaults.TRIGGERS[msg['type']]
 	elif msg['type'] == 'output':
 		op = defaults.ACTIONS[msg['type']]
-		op['properties']['title'] = controllers[msg['cid']]['name'] + ' > ' + msg['port']
+		op['properties']['title'] = controllers[cid]['name'] + ' > ' + msg['port']
 	else:
 		print(msg['type'], msg)
 		return
 	op['top'] = posy
 	op['left'] = posx
-	id = get_next_opid()
+	opid = get_next_opid()
 	update_params({
-		'opid': str(id),
+		'opid': str(opid),
+		'cid': cid,
 		'title': op['properties']['title'],
 		'type': msg['type']
 		})
-	emit('add_to_graph', {'data': op, 'id': id})
+	emit('add_to_graph', {'data': op, 'opid': opid})
 	posx = posx + 20
 	posy = posy + 20
 
@@ -101,20 +118,20 @@ def add_op(msg):
 @socketio.on('update_parameters')
 def update_params(msg):
 	# msg = {opid: ##, title: sss, param1: sss, param2: sss, type: sss}
-	id = None
+	opid = None
 	try:
-		id = msg['opid'].decode('utf-8')
+		opid = msg['opid'].decode('utf-8')
 	except AttributeError:
-		id = msg['opid']
+		opid = msg['opid']
 	p = {}
-	p['cid'] = 'C123'
+	p['cid'] = msg.get('cid')
 	p['title'] = msg.get('title', 'No Name')
 	p['param1'] = msg.get('param1', 5)  # default to 5s if not set
 	p['param2'] = msg.get('param2', 10)  # default to 10s if not set
 	p['type'] = msg.get('type', '')  # default to empty string if not set
 	params = json.load(open('data/params.json'))
 	# NOTE - all operator types get param1 and param2 set, even if they are not using it, e.g. outputs
-	params[id] = {
+	params[opid] = {
 		'cid': p['cid'],
 		'title': p['title'],
 		'param1': p['param1'],
@@ -154,8 +171,8 @@ def update_controller(msg):
 def get_params(msg):
 	params = json.load(open('data/params.json'))
 	emit('show_params', {
-		'params': params[str(msg['id'])],
-		'opid': str(msg['id'])
+		'params': params[str(msg['opid'])],
+		'opid': str(msg['opid'])
 		}
 	)
 
@@ -168,10 +185,10 @@ def save_to_file(msg):
 
 @socketio.on('delete_op_params')
 def delete_params(msg):
-	id = str(msg['id'])
+	opid = str(msg['opid'])
 	params = json.load(open('data/params.json'))
-	if params.get(id, None) is not None:
-		del params[id]
+	if params.get(opid, None) is not None:
+		del params[opid]
 		with open('data/params.json', 'w') as outfile:
 			json.dump(params, outfile)
 

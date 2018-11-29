@@ -81,7 +81,7 @@
         					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><i class="fas fa-plus fa-fw"></i>ADD TRIGGER</a>
         					<div class="dropdown-menu">
         						{% for i in inputs %}
-        						<a class="dropdown-item add-operator" href="#" data-type="input" data-cid="{{ i.id }}">> {{ i.name }}</a>
+        						<a class="dropdown-item add-operator" href="#" data-type="input" data-cid="{{ i.cid }}">> {{ i.name }}</a>
         						{% endfor %}
         					</div>
         				</li>
@@ -93,7 +93,7 @@
         					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><i class="fas fa-plus fa-fw"></i>ADD OUTPUT</a>
         					<div class="dropdown-menu">
         						{% for o in outputs %}
-        						<a class="dropdown-item add-operator" href="#" data-type="output" data-cid="{{ o.id }}" data-port="{{ o.port }}">{{ o.name }} > {{ o.port }}</a>
+        						<a class="dropdown-item add-operator" href="#" data-type="output" data-cid="{{ o.cid }}" data-port="{{ o.port }}">{{ o.name }} > {{ o.port }}</a>
         						{% endfor %}
         					</div>
         				</li>
@@ -101,7 +101,7 @@
         					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><i class="fas fa-plus fa-fw"></i>ADD SOUND</a>
         					<div class="dropdown-menu">
         						{% for s in sounds %}
-        						<a class="dropdown-item add-operator" href="#" data-type="output" data-cid="{{ s.id }}">{{ s.name }}</a>
+        						<a class="dropdown-item add-operator" href="#" data-type="output" data-cid="{{ s.cid }}">{{ s.name }}</a>
         						{% endfor %}
         					</div>
         				</li>
