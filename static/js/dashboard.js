@@ -108,24 +108,31 @@ $( function() {
 	  });
   });
 
+  function publish_event( name, data ) {
+    console.log(name);
+    var publishEventSendGraph = particle.publishEvent(
+      {name: name, data: data, auth: token, isPrivate: true}
+    );
+    publishEventSendGraph.then(
+      function( data ) {
+        if ( data.body.ok ) {
+          console.log( name + ' published successfully.' );
+          logResponse( name + ' published successfully.', 'success' );
+        }
+      },
+      function( err ) {
+        console.log( name + strPart + ' failed.' + err );
+        logResponse( name + strPart + ' failed.', 'danger' );
+      }
+    );
+  }
+
   socket.on( 'send_graph', function(msg) {
   	if ( token ) {
       var strPart;
       if ( !msg.complete ) {
         strPart = msg.part;
-        var publishEventSendGraph = particle.publishEvent( {name: 'Graph/' + strPart, data: msg.data, auth: token, isPrivate: True} );
-        publishEventSendGraph.then(
-          function( data ) {
-            if ( data.body.ok ) {
-              console.log( 'Graph/' + strPart + ' published successfully.' );
-              logResponse( 'Graph/' + strPart + ' published successfully.', 'success' );
-            }
-          },
-          function( err ) {
-            console.log( 'Graph/' + strPart + ' failed.' + err );
-            logResponse( 'Graph/' + strPart + ' failed.', 'danger' );
-          }
-        );
+        setTimeout ( function() { publish_event( 'Graph/' + strPart, msg.data ); }, 5000 );
       } else {
         $( '#sendGraph' ).removeClass( 'btn-warning btn-success' ).addClass( 'btn-success').text( 'Sent' );
       }

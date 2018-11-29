@@ -2,6 +2,7 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 import json
 import defaults
+import time
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
@@ -270,9 +271,11 @@ def parse_graph_data():
 	#print('Sending Trigger:', data)
 	while counter < len(data):
 		send_data = data[counter:counter + SEND_LENGTH]  # send 250 characters at a time
+		print (send_data)
 		emit('send_graph', {'part': str(part), 'data': send_data, 'complete': False})
 		part = part + 1
 		counter = counter + SEND_LENGTH
+
 	emit('send_graph', {'part': '', 'data': '', 'complete': True})
 
 
