@@ -56,14 +56,20 @@ def got_devices(msg):
 	for controller in devices:
 		cid = controller['id']
 		controllers = json.load(open('data/controllers.json'))  # get existing controllers
-		if controllers.get(cid, None) is None:
+		hexids = list()
+		cids = set()
+		for hexid,details in controllers.items():
+			hexids.append(hexid)
+			cids.add(details['hexid'])
+		if cid not in cids:
 			controllers[cid] = defaults.CONTROLLER  # add to existing controllers
 			controllers[cid]['name'] = controller['name']
-			controllers[cid]['hexid'] = get_next_hexid()
+			new_hex_id = get_next_hexid(hexids)
+			controllers[cid]['hexid'] = new_hex_id
 			with open('data/controllers.json', 'w') as outfile:  # write to file
 				json.dump(controllers, outfile)
 			# socketio.emit('add_controller, {}')
-			print('Controller id {0} added.'.format(cid))
+			print('Controller id:{0} hexid:{1} added.'.format(cid, new_hex_id))
 
 
 @socketio.on('show_graph')
@@ -105,9 +111,10 @@ def add_op(msg):
 	op['top'] = posy
 	op['left'] = posx
 	opid = get_next_opid()
+	hexid = controllers.get('cid').get('hexid', '') if controllers.get('cid') else ''
 	update_params({
 		'opid': str(opid),
-		'hexid': controllers[cid]['hexid'],
+		'hexid': hexid,
 		'title': op['properties']['title'],
 		'type': msg['type']
 		})
@@ -275,18 +282,11 @@ def get_next_opid():
 	return i
 
 
-def get_next_hexid():
+def get_next_hexid(hexid_list):
 	i = 1
 	hexid = format(i, '02x') # 2-digit hex string
-	controllers = json.load(open('data/controllers.json'))
-	#controllers_sorted = OrderedDict(sorted(controllers.items(), key=;ambda t: t[1]['hexid']))
 
-	ids = []
-	for cid,params in controllers.items():
-		ids.append(params['hexid'])
-
-	print('Checking hexid ' + hexid)
-	while hexid in ids:
+	while hexid in sorted(hexid_list):
 		print('Checking hexid ' + hexid)
 		i = i + 1
 		hexid = format(i, '02x')

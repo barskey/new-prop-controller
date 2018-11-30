@@ -88,10 +88,10 @@ $(document).ready(function() {
 
   $( ':checkbox' ).change( function() {
     console.log('checkbox changed');
-    var cid = $( this ).parents( 'tr' ).attr( 'id' );
+    var hexid = $( this ).parents( 'tr' ).attr( 'id' );
     var outport = $( this ).attr( 'data-port' );
     var state = $( this ).prop( 'checked' );
-    socket.emit( 'update_controller', {cid: cid, key: outport, val: state} );
+    socket.emit( 'update_controller', {hex: hexid, key: outport, val: state} );
   });
 
   $( '.btn' ).click( function () {
@@ -100,12 +100,12 @@ $(document).ready(function() {
 
   $( "input[name='cname']" ).change( function () {
     var $nameInput = $( this );
-    var id = $( this ).parents( 'tr' ).attr( 'id' );
+    var hexid = $( this ).parents( 'tr' ).attr( 'id' );
     var name = $( this ).val();
-    particle.renameDevice({ deviceId: id, name: name, auth: token }).then(
+    particle.renameDevice({ hexid: hexid, name: name, auth: token }).then(
       function( msg ) {
-        console.log( 'Renamed ' + id + ' to: ' + name );
-        socket.emit( 'update_controller', {cid: id, key: 'name', val: name} );
+        console.log( 'Renamed ' + hexid + ' to: ' + name );
+        socket.emit( 'update_controller', {hexid: hexid, key: 'name', val: name} );
         $nameInput.attr( 'readonly', true );
       },
       function( err ) { console.log( 'Rename API call failed: ', err );}

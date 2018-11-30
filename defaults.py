@@ -77,7 +77,7 @@ ACTIONS = {
 
 CONTROLLER = {
 	'name': 'Controller',
-	'hexid': '00',
+	'cid': '',
 	'input': '1',
 	'A': '0',
 	'B': '0',
