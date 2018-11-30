@@ -88,10 +88,10 @@ $(document).ready(function() {
 
   $( ':checkbox' ).change( function() {
     console.log('checkbox changed');
-    var id = $( this ).parents( 'tr' ).attr( 'id' );
+    var cid = $( this ).parents( 'tr' ).attr( 'id' );
     var outport = $( this ).attr( 'data-port' );
     var state = $( this ).prop( 'checked' );
-    socket.emit( 'update_controller', {cid: id, key: outport, val: state} );
+    socket.emit( 'update_controller', {cid: cid, key: outport, val: state} );
   });
 
   $( '.btn' ).click( function () {

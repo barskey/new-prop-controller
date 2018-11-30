@@ -59,6 +59,7 @@ def got_devices(msg):
 		if controllers.get(cid, None) is None:
 			controllers[cid] = defaults.CONTROLLER  # add to existing controllers
 			controllers[cid]['name'] = controller['name']
+			controllers[cid]['hexid'] = get_next_hexid()
 			with open('data/controllers.json', 'w') as outfile:  # write to file
 				json.dump(controllers, outfile)
 			# socketio.emit('add_controller, {}')
@@ -106,7 +107,7 @@ def add_op(msg):
 	opid = get_next_opid()
 	update_params({
 		'opid': str(opid),
-		'cid': cid,
+		'hexid': controllers[cid]['hexid'],
 		'title': op['properties']['title'],
 		'type': msg['type']
 		})
@@ -123,20 +124,14 @@ def update_params(msg):
 		opid = msg['opid'].decode('utf-8')
 	except AttributeError:
 		opid = msg['opid']
-	p = {}
-	p['cid'] = msg.get('cid')
-	p['title'] = msg.get('title', 'No Name')
-	p['param1'] = msg.get('param1', 5)  # default to 5s if not set
-	p['param2'] = msg.get('param2', 10)  # default to 10s if not set
-	p['type'] = msg.get('type', '')  # default to empty string if not set
 	params = json.load(open('data/params.json'))
 	# NOTE - all operator types get param1 and param2 set, even if they are not using it, e.g. outputs
 	params[opid] = {
-		'cid': p['cid'],
-		'title': p['title'],
-		'param1': p['param1'],
-		'param2': p['param2'],
-		'type': p['type']
+		'hexid': msg.get('hexid'),
+		'title': msg.get('title', 'No Name'),
+		'param1': msg.get('param1', 5),  # default to 5s if not set
+		'param2': msg.get('param2', 10),  # default to 10s if not set
+		'type': msg.get('type', '')  # default to empty string if not set
 	}
 	with open('data/params.json', 'w') as outfile:
 		json.dump(params, outfile)
@@ -162,7 +157,7 @@ def update_controller(msg):
 		controllers[cid][key] = '1' if value else '0'
 	with open('data/controllers.json', 'w') as outfile:
 		json.dump(controllers, outfile)
-	strDefaults = controllers[cid]['input'] + controllers[cid]['A'] + controllers[cid]['B'] + controllers[cid]['C'] + controllers[cid]['D']
+	strDefaults = controllers[cid]['hexid'] + controllers[cid]['input'] + controllers[cid]['A'] + controllers[cid]['B'] + controllers[cid]['C'] + controllers[cid]['D']
 	emit('send_defaults', {'data': strDefaults, 'cid': cid})
 	emit('log_response', {'response': 'Saved controller settings.', 'style': 'success'})
 
@@ -193,13 +188,6 @@ def delete_params(msg):
 			json.dump(params, outfile)
 
 
-def makeDict(array):
-	obj = {}
-	for item in array:
-		obj[item['name']] = item['value']
-	return obj
-
-
 @socketio.on('clear_data')
 def clear_data(msg):
 	print(msg['data'])
@@ -213,16 +201,6 @@ def clear_data(msg):
 		pass
 		# with open('data/controllers', 'w') as outfile:
 		#	json.dump(empy, outfile)
-
-
-def get_next_opid():
-	i = 0
-	ops = json.load(open('data/graph.json')).get('operators', None)
-	if ops is None:
-		return i
-	while ops.get(str(i), None) is not None:
-		i = i + 1
-	return i
 
 
 # Parse graph json data into json representation of action/event data to send to controllers.
@@ -255,21 +233,21 @@ def parse_graph_data():
 		if v['properties']['class'] == 'trigger-interval':
 			triggers.append({
 				'opid': str_id,
-				'cid': params[str_id]['cid'],
+				'hexid': params[str_id]['hexid'],
 				't': 'V',
 				'p': [params[str_id]['param1']]
 			})
 		elif v['properties']['class'] == 'trigger-random':
 			triggers.append({
 				'opid': str_id,
-				'cid': params[str_id]['cid'],
+				'hexid': params[str_id]['hexid'],
 				't': 'R',
 				'p': [params[str_id]['param1'], params[str_id]['param2']]
 			})
 		elif v['properties']['class'] == 'trigger-input':
 			triggers.append({
 				'opid': str_id,
-				'cid': params[str_id]['cid'],
+				'hexid': params[str_id]['hexid'],
 				't': 'I',
 				'p': [params[str_id]['param1']]
 			})
@@ -285,6 +263,35 @@ def parse_graph_data():
 	data = json.dumps(triggers, separators=(',', ':'))  # TODO Get rid of all opid keys to save space
 	#print('Sending Trigger:', data)
 	emit('send_graph', {'data': data})
+
+
+def get_next_opid():
+	i = 0
+	ops = json.load(open('data/graph.json')).get('operators', None)
+	if ops is None:
+		return i
+	while ops.get(str(i), None) is not None:
+		i = i + 1
+	return i
+
+
+def get_next_hexid():
+	i = 1
+	hexid = format(i, '02x') # 2-digit hex string
+	controllers = json.load(open('data/controllers.json'))
+	#controllers_sorted = OrderedDict(sorted(controllers.items(), key=;ambda t: t[1]['hexid']))
+
+	ids = []
+	for cid,params in controllers.items():
+		ids.append(params['hexid'])
+
+	print('Checking hexid ' + hexid)
+	while hexid in ids:
+		print('Checking hexid ' + hexid)
+		i = i + 1
+		hexid = format(i, '02x')
+
+	return hexid
 
 
 def get_actions(str_opid):
