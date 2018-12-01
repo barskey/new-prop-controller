@@ -88,10 +88,10 @@ $(document).ready(function() {
 
   $( ':checkbox' ).change( function() {
     console.log('checkbox changed');
-    var hexid = $( this ).parents( 'tr' ).attr( 'id' );
+    var hexid = $( this ).parents( 'tr' ).attr( 'data-hexid' );
     var outport = $( this ).attr( 'data-port' );
     var state = $( this ).prop( 'checked' );
-    socket.emit( 'update_controller', {hex: hexid, key: outport, val: state} );
+    socket.emit( 'update_controller', {hexid: hexid, key: outport, val: state} );
   });
 
   $( '.btn' ).click( function () {
@@ -100,9 +100,10 @@ $(document).ready(function() {
 
   $( "input[name='cname']" ).change( function () {
     var $nameInput = $( this );
-    var hexid = $( this ).parents( 'tr' ).attr( 'id' );
+    var cid = $( this ).parents( 'tr' ).attr( 'id' );
+    var hexid = $( this ).parents( 'tr' ).attr( 'data-hexid' );
     var name = $( this ).val();
-    particle.renameDevice({ hexid: hexid, name: name, auth: token }).then(
+    particle.renameDevice({ id: cid, name: name, auth: token }).then(
       function( msg ) {
         console.log( 'Renamed ' + hexid + ' to: ' + name );
         socket.emit( 'update_controller', {hexid: hexid, key: 'name', val: name} );

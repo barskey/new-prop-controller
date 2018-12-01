@@ -2,7 +2,6 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 import json
 import defaults
-import time
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
@@ -13,10 +12,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode=async_mode)
 
-
 posx, posy = 20, 20  # starting position of graph nodes
-
-
 SEND_LENGTH = 250  # number of characters to send as publish event (actually is SEND_LENGTH+1 since it starts at 0)
 
 @app.route('/')
@@ -31,13 +27,13 @@ def dashboard():
 	posx, posy = 20, 20
 	inputs = []
 	outputs = []
-	for cid, data in json.load(open('data/controllers.json')).items():
+	for hexid, data in json.load(open('data/controllers.json')).items():
 		name = data['name']
-		inputs.append({'cid': cid, 'name': name})
-		outputs.append({'cid': cid, 'name': name, 'port': 'A'})
-		outputs.append({'cid': cid, 'name': name, 'port': 'B'})
-		outputs.append({'cid': cid, 'name': name, 'port': 'C'})
-		outputs.append({'cid': cid, 'name': name, 'port': 'D'})
+		inputs.append({'hexid': hexid, 'name': name})
+		outputs.append({'hexid': hexid, 'name': name, 'port': 'A'})
+		outputs.append({'hexid': hexid, 'name': name, 'port': 'B'})
+		outputs.append({'hexid': hexid, 'name': name, 'port': 'C'})
+		outputs.append({'hexid': hexid, 'name': name, 'port': 'D'})
 	return render_template('dashboard.html', async_mode=socketio.async_mode, inputs=inputs, outputs=outputs)
 
 
@@ -60,12 +56,12 @@ def got_devices(msg):
 		cids = set()
 		for hexid,details in controllers.items():
 			hexids.append(hexid)
-			cids.add(details['hexid'])
+			cids.add(details['cid'])
 		if cid not in cids:
-			controllers[cid] = defaults.CONTROLLER  # add to existing controllers
-			controllers[cid]['name'] = controller['name']
 			new_hex_id = get_next_hexid(hexids)
-			controllers[cid]['hexid'] = new_hex_id
+			controllers[new_hex_id] = defaults.CONTROLLER  # add to existing controllers
+			controllers[new_hex_id]['name'] = controller['name']
+			controllers[new_hex_id]['cid'] = cid
 			with open('data/controllers.json', 'w') as outfile:  # write to file
 				json.dump(controllers, outfile)
 			# socketio.emit('add_controller, {}')
@@ -79,39 +75,26 @@ def load_graph():
 	emit('create_graph', {'data': data})
 
 
-@socketio.on('ping_received')
-def controller_connected(msg):
-	cid = msg['data'].decode('utf-8')
-	controllers = json.load(open('data/controllers.json'))  # get existing controllers
-	if controllers.get(cid, None) is None:
-		controllers[cid] = defaults.CONTROLLER  # add to existing controllers
-		with open('data/controllers.json', 'w') as outfile:  # write to file
-			json.dump(controllers, outfile)
-		# socketio.emit('add_controller, {}')
-		print('Controller added.')
-
-
 @socketio.on('add_op')
 def add_op(msg):
 	controllers = json.load(open('data/controllers.json'))  # get existing controllers
 	global posx, posy
-	cid = msg.get('cid', '')
+	hexid = msg.get('hexid', '')
 	op = None
 	if msg['type'] == 'input':
 		op = defaults.TRIGGERS[msg['type']]
-		op['properties']['title'] = 'Trigger: ' + controllers[cid]['name']
+		op['properties']['title'] = 'Trigger: ' + controllers[hexid]['name']
 	elif msg['type'] in ['interval', 'random', 'timer']:
 		op = defaults.TRIGGERS[msg['type']]
 	elif msg['type'] == 'output':
 		op = defaults.ACTIONS[msg['type']]
-		op['properties']['title'] = controllers[cid]['name'] + ' > ' + msg['port']
+		op['properties']['title'] = controllers[hexid]['name'] + ' > ' + msg['port']
 	else:
 		print(msg['type'], msg)
 		return
 	op['top'] = posy
 	op['left'] = posx
 	opid = get_next_opid()
-	hexid = controllers.get('cid').get('hexid', '') if controllers.get('cid') else ''
 	update_params({
 		'opid': str(opid),
 		'hexid': hexid,
@@ -146,11 +129,11 @@ def update_params(msg):
 
 @socketio.on('update_controller')
 def update_controller(msg):
-	cid = None
+	hexid = None
 	try:
-		cid = msg['cid'].decode('utf-8')
+		hexid = msg['hexid'].decode('utf-8')
 	except AttributeError:
-		cid = msg['cid']
+		hexid = msg['hexid']
 	key = None
 	try:
 		key = msg['key'].decode('utf-8')
@@ -159,13 +142,13 @@ def update_controller(msg):
 	value = msg['val']
 	controllers = json.load(open('data/controllers.json'))
 	if key == 'name':
-		controllers[cid][key] = value
+		controllers[hexid][key] = value
 	else:
-		controllers[cid][key] = '1' if value else '0'
+		controllers[hexid][key] = '1' if value else '0'
 	with open('data/controllers.json', 'w') as outfile:
 		json.dump(controllers, outfile)
-	strDefaults = controllers[cid]['hexid'] + controllers[cid]['input'] + controllers[cid]['A'] + controllers[cid]['B'] + controllers[cid]['C'] + controllers[cid]['D']
-	emit('send_defaults', {'data': strDefaults, 'cid': cid})
+	strDefaults = hexid + controllers[hexid]['input'] + controllers[hexid]['A'] + controllers[hexid]['B'] + controllers[hexid]['C'] + controllers[hexid]['D']
+	emit('send_defaults', {'data': strDefaults, 'cid': controllers[hexid]['cid']})
 	emit('log_response', {'response': 'Saved controller settings.', 'style': 'success'})
 
 
@@ -213,13 +196,13 @@ def clear_data(msg):
 # Parse graph json data into json representation of action/event data to send to controllers.
 # See defaults.py for dict structure.
 # triggers - each trigger sent as JSON:
-# {cid: <contoller id>,
+# {hexid: <hex id>,
 #  t(type): <R(random), (V)interval, (I)input>,
 #  p(params): [<param1, param2>],
 #  a(actions): []
 # }
 # a(actions) - an array of objects like:
-# [ {cid: <controller id>,
+# [ {hexid: <hex id>,
 #    t(type): <O(output), T(timer), S(sound)>,
 #    p(params): <A(port name), ##(sound id), #.#(time in s)>,
 #    a(actions): []
@@ -236,7 +219,6 @@ def parse_graph_data():
 
 	# First find all operators of type interval, random or trigger - these are required to trigger other actions.
 	for str_id, v in operators.items():
-		int_id = int(str_id)
 		if v['properties']['class'] == 'trigger-interval':
 			triggers.append({
 				'opid': str_id,
@@ -308,7 +290,7 @@ def get_actions(str_opid):
 			#del links[from_id] # remove it since we have already added to triggers
 			to_opid = v['toOperator']  # operator id to which this link connects
 			#print ('Found link connecting from {0} to {1}'.format(params[from_opid]['title'], params[to_opid]['title']))
-			cid = params[str(to_opid)]['cid']  # get actual contoller id
+			hexid = params[str(to_opid)]['hexid']  # get hex id of controller
 			type = operators[str(to_opid)]['properties']['class']
 			if type.endswith('timer'):
 				type = 'T'
@@ -317,7 +299,7 @@ def get_actions(str_opid):
 			elif type.endswith('sound'):
 				type = 'S'
 			param = v['toConnector']
-			action = {'opid': to_opid, 'cid': cid, 't': type, 'p': [param]}
+			action = {'opid': to_opid, 'hexid': hexid, 't': type, 'p': [param]}
 			action['a'] = get_actions(str(to_opid))
 			actions.append(action)
 

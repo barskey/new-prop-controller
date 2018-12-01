@@ -2,13 +2,13 @@ TRIGGERS = {
 	'timer': {
 		'properties':
 		{
-			'title': 'One-Shot Timer',
+			'title': 'Wait for Seconds',
 			'class': 'trigger-timer',
 			'inputs': {
 				's': {'label': 'Start'}
 			},
 			'outputs': {
-				'out1': {'label': 'After Timer'}
+				'out1': {'label': 'After Wait'}
 			}
 		}
 	},

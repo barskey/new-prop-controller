@@ -151,6 +151,7 @@ $( function() {
 	  $( '.edit-title, .edit-' + msg.params.type ).removeClass( 'd-none' );
 		$( '#saveSelectedOp, #deleteSelectedOp' ).removeClass( 'd-none');
 		$( '#op-type' ).val( msg.params.type );
+    $( '#op-hexid' ).val(msg.params.hexid );
 	  $( '#title' ).val( msg.params.title );
 	  $( '#' + msg.params.type + '-param1' ).val( msg.params.param1 );
 	  $( '#' + msg.params.type + '-param2' ).val( msg.params.param2 );
@@ -169,23 +170,24 @@ $( function() {
   //------------------------- Click Handlers ----------------------------------//
   $( 'a.add-operator' ).click( function() {
     var type = $( this ).attr( 'data-type' );
-    var cid = $( this ).attr( 'data-cid' );
+    var hexid = $( this ).attr( 'data-hexid' );
     var port = '';
     if ( type == 'output' )
     {
       port = $( this ).attr( 'data-port' );
     }
-    socket.emit( 'add_op', {type: type, cid: cid, port: port} );
+    socket.emit( 'add_op', {type: type, hexid: hexid, port: port} );
   });
 
 	$( '#saveSelectedOp' ).click ( function() {
 		var opid = $dashboard.flowchart( 'getSelectedOperatorId' );
 		var type = $( '#op-type' ).val();
+    var hexid = $( '#op-hexid' ).val();
 		var optitle = $( '#title' ).val();
 		var p1 = $( '#' + type + '-param1' ).val();
 		var p2 = $( '#' + type + '-param2' ).val();
 		$dashboard.flowchart( 'setOperatorTitle', opid, optitle );
-		socket.emit( 'update_parameters', {opid: opid, title: optitle, param1: p1, param2: p2, type: type} );
+		socket.emit( 'update_parameters', {opid: opid, hexid: hexid, title: optitle, param1: p1, param2: p2, type: type} );
 	});
 
 	$( '#deleteSelectedOp' ).click ( function() {
