@@ -234,17 +234,24 @@ def parse_graph_data():
 				'p': [params[str_id]['param1'], params[str_id]['param2']]
 			})
 		elif v['properties']['class'] == 'trigger-input':
+			# create two triggers - one for on hi, one for on lo
 			triggers.append({
 				'opid': str_id,
 				'hexid': params[str_id]['hexid'],
 				't': 'I',
-				'p': [params[str_id]['param1']]
+				'p': ['h']  # on HI
+			})
+			triggers.append({
+				'opid': str_id,
+				'hexid': params[str_id]['hexid'],
+				't': 'I',
+				'p': ['l']  # on LO
 			})
 
 	# iterate through triggers and build action arrays
 	for trigger in triggers:
 		#print ('Getting actions for op ' + params[id]['title'])
-		trigger['a'] = get_actions(str(trigger['opid']))
+		trigger['a'] = get_actions(str(trigger['opid']), trigger['p'][0])
 
 	#print (json.dumps(triggers, indent=2))
 	print ('String length: {0}'.format(len(json.dumps(triggers, separators=(',',':')))))
@@ -276,20 +283,16 @@ def get_next_hexid(hexid_list):
 	return hexid
 
 
-def get_actions(str_opid):
+def get_actions(str_opid, on_state):
 	params = json.load(open('data/params.json'))
 	data = json.load(open('data/graph.json'))
 	operators = data['operators']
 	links = data['links']
 
 	actions = []
-	#links_copy = dict(links) # copy dict so as we iterate thru we can remove from original dict
 	for linkid, v in links.items():
-		from_opid = v['fromOperator']
-		if str(from_opid) == str_opid:
-			#del links[from_id] # remove it since we have already added to triggers
+		if v['fromOperator'] == str_opid and v['fromConnector'] == on_state:
 			to_opid = v['toOperator']  # operator id to which this link connects
-			#print ('Found link connecting from {0} to {1}'.format(params[from_opid]['title'], params[to_opid]['title']))
 			hexid = params[str(to_opid)]['hexid']  # get hex id of controller
 			type = operators[str(to_opid)]['properties']['class']
 			if type.endswith('timer'):
