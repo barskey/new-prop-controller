@@ -81,6 +81,7 @@ def add_op(msg):
 	global posx, posy
 	hexid = msg.get('hexid', '')
 	op = None
+	param2 = 10  # default if param is not set
 	if msg['type'] == 'input':
 		op = defaults.TRIGGERS[msg['type']]
 		op['properties']['title'] = 'Trigger: ' + controllers[hexid]['name']
@@ -89,6 +90,7 @@ def add_op(msg):
 	elif msg['type'] == 'output':
 		op = defaults.ACTIONS[msg['type']]
 		op['properties']['title'] = controllers[hexid]['name'] + ' > ' + msg['port']
+		param2 = msg['port']
 	else:
 		print(msg['type'], msg)
 		return
@@ -99,7 +101,8 @@ def add_op(msg):
 		'opid': str(opid),
 		'hexid': hexid,
 		'title': op['properties']['title'],
-		'type': msg['type']
+		'type': msg['type'],
+		'param2': param2
 		})
 	emit('add_to_graph', {'data': op, 'opid': opid})
 	posx = posx + 20
@@ -187,71 +190,66 @@ def clear_data(msg):
 			json.dump(empty, outfile)
 		with open('data/params.json', 'w') as outfile:
 			json.dump(empty, outfile)
-	if msg['data'] == 'all':
-		pass
-		# with open('data/controllers', 'w') as outfile:
-		#	json.dump(empy, outfile)
 
 
 # Parse graph json data into json representation of action/event data to send to controllers.
 # See defaults.py for dict structure.
 # triggers - each trigger sent as JSON:
 # {hexid: <hex id>,
-#  t(type): <R(random), (V)interval, (I)input>,
-#  p(params): [<param1, param2>],
-#  a(actions): []
+#  type: <Random, Interval, Input>,
+#  params: [<param1, param2>],
+#  actions: []
 # }
-# a(actions) - an array of objects like:
-# [ {hexid: <hex id>,
-#    t(type): <O(output), T(timer), S(sound)>,
-#    p(params): <A(port name), ##(sound id), #.#(time in s)>,
-#    a(actions): []
-# } ]
+links = None
 @socketio.on('parse_graph')
 def parse_graph_data():
+	global links
 	params = json.load(open('data/params.json'))
 	data = json.load(open('data/graph.json'))
-	operators = data['operators']
-	#links = data['links']
+	operators = data.get('operators', None)
+	if operators is None:
+		return
+	links = data.get('links', None)
 	#print (json.dumps(links, indent=2))
 
 	triggers = []
 
 	# First find all operators of type interval, random or trigger - these are required to trigger other actions.
 	for str_id, v in operators.items():
-		if v['properties']['class'] == 'trigger-interval':
+		type = v['properties']['class']
+		if type.endswith('interval'):
 			triggers.append({
 				'opid': str_id,
 				'hexid': params[str_id]['hexid'],
-				't': 'V',
-				'p': [params[str_id]['param1']]
+				'type': 'Interval',
+				'params': [str(params[str_id]['param1'])]
 			})
-		elif v['properties']['class'] == 'trigger-random':
+		elif type.endswith('random'):
 			triggers.append({
 				'opid': str_id,
 				'hexid': params[str_id]['hexid'],
-				't': 'R',
-				'p': [params[str_id]['param1'], params[str_id]['param2']]
+				'type': 'Random',
+				'params': [str(params[str_id]['param1']), str(params[str_id]['param2'])]
 			})
-		elif v['properties']['class'] == 'trigger-input':
+		elif type.endswith('input'):
 			# create two triggers - one for on hi, one for on lo
 			triggers.append({
 				'opid': str_id,
 				'hexid': params[str_id]['hexid'],
-				't': 'I',
-				'p': ['h']  # on HI
+				'type': 'Input',
+				'params': ['h']  # on HI
 			})
 			triggers.append({
 				'opid': str_id,
 				'hexid': params[str_id]['hexid'],
-				't': 'I',
-				'p': ['l']  # on LO
+				'type': 'Input',
+				'params': ['l']  # on LO
 			})
 
 	# iterate through triggers and build action arrays
 	for trigger in triggers:
-		#print ('Getting actions for op ' + params[id]['title'])
-		trigger['a'] = get_actions(str(trigger['opid']), trigger['p'][0])
+		#print('Getting actions for trigger ' + trigger['type'], trigger)
+		trigger['actions'] = get_actions(str(trigger['opid']), trigger['type'], trigger['params'][0])
 
 	#print (json.dumps(triggers, indent=2))
 	print ('String length: {0}'.format(len(json.dumps(triggers, separators=(',',':')))))
@@ -259,6 +257,51 @@ def parse_graph_data():
 	data = json.dumps(triggers, separators=(',', ':'))  # TODO Get rid of all opid keys to save space
 	#print('Sending Trigger:', data)
 	emit('send_graph', {'data': data})
+
+
+# returns actions[] - an array of objects like:
+# [ {hexid: <hex id>,
+#    type: <Output, Timer, Sound>,
+#    params: [<H/L(state), ##(sound id), #.#(time in s)>, <>], <-- if output, [0] is state, [1] is port
+#    actions: []
+# } ]
+def get_actions(str_opid, from_type, on_state):
+	global links
+	params = json.load(open('data/params.json'))
+	data = json.load(open('data/graph.json'))
+	operators = data['operators']
+	#links = data['links']
+
+	actions = []
+	links_copy = dict(links) # copy dict so as we iterate thru we can remove from original dict
+	for linkid, v in links_copy.items():
+		if str_opid == str(v['fromOperator']):  # matched this operator to from trigger/action
+			proceed = True
+			#print(from_type, v['fromConnector'], on_state)
+			if from_type == "Input":  # if this is a trigger...
+				if v['fromConnector'] != on_state:  # only proceed if from connector matches
+					proceed = False
+			if proceed is True:
+				del links[linkid] # remove it since we have already added to triggers
+				to_opid = v['toOperator']  # operator id to which this link connects
+				hexid = params[str(to_opid)]['hexid']  # get hex id of controller
+				type = operators[str(to_opid)]['properties']['class']
+				action_params = []
+				if type.endswith('timer'):
+					type = 'Timer'
+					action_params = [str(params[str(to_opid)]['param1'])]
+				elif type.endswith('output'):
+					type = 'Output'
+					action_params = [v['toConnector'], params[str(to_opid)]['param2']]
+				elif type.endswith('sound'):
+					action_params = []
+					type = 'Sound'
+				action = {'opid': to_opid, 'hexid': hexid, 'type': type, 'params': action_params}
+				action['actions'] = get_actions(str(to_opid), 'Action', v['fromConnector'])
+				actions.append(action)
+
+	#print('Found actions:', actions)
+	return actions
 
 
 def get_next_opid():
@@ -281,32 +324,6 @@ def get_next_hexid(hexid_list):
 		hexid = format(i, '02x')
 
 	return hexid
-
-
-def get_actions(str_opid, on_state):
-	params = json.load(open('data/params.json'))
-	data = json.load(open('data/graph.json'))
-	operators = data['operators']
-	links = data['links']
-
-	actions = []
-	for linkid, v in links.items():
-		if v['fromOperator'] == str_opid and v['fromConnector'] == on_state:
-			to_opid = v['toOperator']  # operator id to which this link connects
-			hexid = params[str(to_opid)]['hexid']  # get hex id of controller
-			type = operators[str(to_opid)]['properties']['class']
-			if type.endswith('timer'):
-				type = 'T'
-			elif type.endswith('output'):
-				type = 'O'
-			elif type.endswith('sound'):
-				type = 'S'
-			param = v['toConnector']
-			action = {'opid': to_opid, 'hexid': hexid, 't': type, 'p': [param]}
-			action['a'] = get_actions(str(to_opid))
-			actions.append(action)
-
-	return actions
 
 
 if __name__ == '__main__':
