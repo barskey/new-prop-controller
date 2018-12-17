@@ -33,6 +33,24 @@ $( function() {
     $( '.edit-timer, .edit-input, .edit-interval, .edit-random, .edit-output, .edit-title, edit-link' ).addClass( 'd-none' );
   };
 
+  function publish_event( name, data ) {
+    var publishEventSendGraph = particle.publishEvent(
+      {name: name, data: data, auth: token, isPrivate: true}
+    );
+    publishEventSendGraph.then(
+      function( data ) {
+        if ( data.body.ok ) {
+          console.log( name + ' published successfully.' );
+          logResponse( name + ' published successfully.', 'success' );
+        }
+      },
+      function( err ) {
+        console.log( name + strPart + ' failed.' + err );
+        logResponse( name + strPart + ' failed.', 'danger' );
+      }
+    );
+  }
+
   var $dashboard = $( '#dashboard' );
 
   //var Particle = require('particle-api-js');
@@ -108,24 +126,6 @@ $( function() {
 	  });
   });
 
-  function publish_event( name, data ) {
-    var publishEventSendGraph = particle.publishEvent(
-      {name: name, data: data, auth: token, isPrivate: true}
-    );
-    publishEventSendGraph.then(
-      function( data ) {
-        if ( data.body.ok ) {
-          console.log( name + ' published successfully.' );
-          logResponse( name + ' published successfully.', 'success' );
-        }
-      },
-      function( err ) {
-        console.log( name + strPart + ' failed.' + err );
-        logResponse( name + strPart + ' failed.', 'danger' );
-      }
-    );
-  }
-
   socket.on( 'send_graph', function(msg) {
   	if ( token ) {
       var counter = 0;
@@ -133,13 +133,13 @@ $( function() {
       // send publish events in chunks 250 characters or less
       while( counter < msg.data.length ) {
         var part = msg.data.substring( counter, counter + 250 );
-        var t = i * 1000;
+        var t = i * 1500;
         var name = 'Graph/' + i.toString();
         setTimeout ( publish_event, t, name, part ); // deay them by 1 second to prevent them from caching together
         counter += 250;
         i++;
       }
-      setTimeout ( function () { $( '#sendGraph' ).removeClass( 'btn-warning btn-success' ).addClass( 'btn-success').text( 'Sent' ) }, i * 1000 );
+      setTimeout ( function () { $( '#sendGraph' ).removeClass( 'btn-warning btn-success' ).addClass( 'btn-success').text( 'Sent' ) }, i * 1500 );
     } else {
       console.log( 'No valid token.' );
       logResponse( 'No valid token.', 'warning' );
