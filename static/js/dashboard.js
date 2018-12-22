@@ -9,10 +9,10 @@ $( function() {
   	side: 'right',
   	pushBody: false,
   	remember: false,
-  	autoClose: true,
+  	autoClose: false,
   	width: '300px',
   	duration: 300,
-    closeOnClick: true
+    closeOnClick: false
   });
 
   var data = {
