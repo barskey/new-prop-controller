@@ -10,64 +10,62 @@
 <!-- Sliding properties sidebar -->
 <div id="editOperator" class="my-auto" style="height: 89vh">
 	<div class="container d-flex flex-column justify-content-end h-100">
-		<span class="h5 bg-dark text-white p-3 mt-1">Properties</span>
+		<span class="h5 bg-dark text-white p-3 mt-1">
+			Properties
+			<button type="submit" class="btn btn-success float-right ml-1 d-none" id="saveSelectedOp"><i class="fas fa-check"></i></button>
+			<button type="button" class="btn btn-danger float-right ml-1 d-none" id="deleteSelectedOp"><i class="fas fa-trash"></i></button>
+			<button type="button" class="btn btn-danger float-right ml-1 d-none" id="deleteSelectedLink"><i class="fas fa-trash"></i></button>
+
+		</span>
 		<form class="form-inline mb-auto" id="editOperator">
 			<input type="hidden" name="type" id="op-type" />
 			<input type="hidden" name="hexid" id="op-hexid" />
-			<ul class="list-group list-group-flush w-100 h-100">
-				<li class="list-group-item edit-title d-none">
-					<div class="input-group">
-						<div class="input-group-prepend">
-							<span class="input-group-text">Name</span>
-						</div>
-						<input type="text" class="form-control" id="title" name="title">
+			<input type="hidden" name="param1" id="output-param1" />
+			<div class="form-row edit-title m-1 d-none">
+				<div class="input-group">
+					<div class="input-group-prepend">
+						<span class="input-group-text">Name</span>
 					</div>
-				</li>
-				<li class="list-group-item edit-output d-none">
-					<input type="hidden" name="param1" id="output-param1" />
-				</li>
-				<li class="list-group-item edit-timer d-none">
-					<div class="input-group">
-						<div class="input-group-prepend">
-							<span class="input-group-text">After</span>
-						</div>
-						<input type="text" class="form-control w-25" id="timer-param1" name="param1">
-						<div class="input-group-append">
-							<span class="input-group-text">s</span>
-						</div>
+					<input type="text" class="form-control" id="title" name="title">
+				</div>
+			</div>
+			<div class="form-row edit-timer m-1 d-none">
+				<div class="input-group">
+					<div class="input-group-prepend">
+						<span class="input-group-text">After</span>
 					</div>
-				</li>
-				<li class="list-group-item edit-interval d-none">
-					<div class="input-group">
-						<div class="input-group-prepend">
-							<span class="input-group-text">Every</span>
-						</div>
-						<input type="text" class="form-control w-25" id="interval-param1" name="param1">
-						<div class="input-group-append">
-							<span class="input-group-text">s</span>
-						</div>
+					<input type="text" class="form-control w-25" id="timer-param1" name="param1">
+					<div class="input-group-append">
+						<span class="input-group-text">s</span>
 					</div>
-				</li>
-				<li class="list-group-item edit-random d-none">
-					<div class="input-group">
-						<div class="input-group-prepend">
-							<span class="input-group-text">Range</span>
-						</div>
-						<input type="text" class="form-control w-25" id="random-param1" name="param1">
-						<input type="text" class="form-control w-25" id="random-param2" name="param2">
-						<div class="input-group-append">
-							<span class="input-group-text">s</span>
-						</div>
+				</div>
+			</div>
+			<div class="form-row edit-interval m-1 d-none">
+				<div class="input-group">
+					<div class="input-group-prepend">
+						<span class="input-group-text">Every</span>
 					</div>
-				</li>
-				<li class="list-group-item edit-output edit-input edit-link d-none">
-				</li>
-				<li class="list-group-item text-right">
-					<button type="submit" class="btn btn-success d-none" id="saveSelectedOp"><i class="fas fa-check"></i></button>
-					<button type="button" class="btn btn-danger d-none" id="deleteSelectedOp"><i class="fas fa-trash"></i></button>
-					<button type="button" class="btn btn-danger d-none" id="deleteSelectedLink"><i class="fas fa-trash"></i></button>
-				</li>
-			</ul>
+					<input type="text" class="form-control w-25" id="interval-param1" name="param1">
+					<div class="input-group-append">
+						<span class="input-group-text">s</span>
+					</div>
+				</div>
+			</div>
+			<div class="form-row edit-random m-1 d-none">
+				<div class="input-group">
+					<div class="input-group-prepend">
+						<span class="input-group-text">Range</span>
+					</div>
+					<input type="text" class="form-control w-25" id="random-param1" name="param1">
+					<input type="text" class="form-control w-25" id="random-param2" name="param2">
+					<div class="input-group-append">
+						<span class="input-group-text">s</span>
+					</div>
+				</div>
+			</div>
+			<div class="form-row edit-link m-1 w-100 d-none">
+				<input type="text" class="form-control w-100" placeholder="Click Trash to remove link..." readonly>
+			</div>
 		</form>
 		<span class="h5 bg-dark text-white p-3">Status</span>
 		<ul class="list-group list-group-flush" id="log">

@@ -1,1 +1,1 @@
-{"1": {"title": "Argon_One > A", "type": "output", "param2": "A", "param1": 5, "hexid": "01"}, "0": {"hexid": "", "type": "timer", "param2": 10, "param1": 5, "title": "Wait for Seconds"}, "3": {"title": "Random Interval", "type": "random", "param2": 10, "param1": 5, "hexid": ""}, "2": {"param2": "B", "type": "output", "hexid": "01", "param1": 5, "title": "Argon_One > B"}, "4": {"param2": 10, "type": "interval", "hexid": "", "param1": 5, "title": "Fixed Interval"}}
+{}

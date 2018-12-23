@@ -30,7 +30,7 @@ $( function() {
 
   function hideSideMenuProperties() {
     $( '#saveSelectedOp, #deleteSelectedOp, #deleteSelectedLink' ).addClass( 'd-none' );
-    $( '.edit-timer, .edit-input, .edit-interval, .edit-random, .edit-output, .edit-title, edit-link' ).addClass( 'd-none' );
+    $( '.edit-timer, .edit-input, .edit-interval, .edit-random, .edit-output, .edit-title, .edit-link' ).addClass( 'd-none' );
   };
 
   function publish_event( name, data ) {
@@ -114,8 +114,8 @@ $( function() {
 			},
 			onLinkSelect: function ( opid ) {
         hideSideMenuProperties();
-				$( '.edit-link' ).removeClass( 'd-none' );
 				$( '#deleteSelectedLink' ).removeClass( 'd-none');
+        $( '.edit-link' ).removeClass( 'd-none' );
         $sideMenu.BootSideMenu.open();
 				return true;
 			},
@@ -192,7 +192,7 @@ $( function() {
 
 	$( '#deleteSelectedOp' ).click ( function() {
 		var opid = $dashboard.flowchart( 'getSelectedOperatorId' );
-		if (opid) {
+		if (opid != null) {
 			socket.emit( 'delete_op_params', { opid: opid });
 			$dashboard.flowchart( 'deleteOperator', opid );
 		}
@@ -200,7 +200,7 @@ $( function() {
 
 	$( '#deleteSelectedLink' ).click ( function() {
 		var opid = $dashboard.flowchart( 'getSelectedLinkId' );
-		if (opid) {
+		if (opid != null) {
 			$dashboard.flowchart( 'deleteLink', opid );
 		}
 	});
