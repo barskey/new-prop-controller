@@ -20,7 +20,81 @@ $( function() {
 	  links: {}
   };
 
+  //var Particle = require('particle-api-js');
+  var particle = new Particle();
+  var token;
+
   //------------------------- Functions ----------------------------------//
+  var $dashboard = $( '#dashboard' );
+  var $container = $dashboard.parent();
+
+  var cx = $dashboard.width() / 2;
+  var cy = $dashboard.height() / 2;
+
+  // Panzoom initialization...
+  $dashboard.panzoom();
+  // Set defaults...
+  $dashboard.panzoom('option', {
+    increment: 0.1,
+    minScale: 0.5,
+    maxScale: 2
+  });
+  // Centering panzoom
+  $dashboard.panzoom('pan', 0, 0);
+
+  // Panzoom zoom handling...
+  var possibleZooms = [0.5, 0.75, 1, 2, 3];
+  var currentZoom = 2;
+  $container.on('mousewheel.focal', function( e ) {
+      e.preventDefault();
+      var delta = (e.delta || e.originalEvent.wheelDelta) || e.originalEvent.detail;
+      var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
+      //currentZoom = Math.max(0, Math.min(possibleZooms.length - 1, (currentZoom + (zoomOut * 2 - 1))));
+      $dashboard.panzoom('zoom', zoomOut, {
+        animate: false,
+        focal: e
+      });
+      var zoom = parseFloat( $dashboard.panzoom( 'getMatrix' )[0] );
+      $dashboard.flowchart( 'setPositionRatio', zoom );
+  });
+
+  $dashboard.flowchart({
+    data: data,
+    multipleLinksOnInput: true,
+    multipleLinksOnOutput: true,
+    onAfterChange: function( type ) {
+      var graphData = $dashboard.flowchart( 'getData' );
+      socket.emit( 'save_graph', { data: graphData } );
+      $( '#sendGraph' ).removeClass( 'btn-warning btn-success' ).addClass( 'btn-warning').text( 'Send Data');
+      return true;
+    },
+    onOperatorSelect: function ( opid ) {
+        socket.emit( 'get_op_params', { opid: opid } );
+        return true;
+    },
+    onOperatorUnselect: function () {
+      hideSideMenuProperties();
+      return true;
+    },
+    onOperatorDelete: function ( opid ) {
+      socket.emit( 'delete_op_params', { opid: opid } );
+      return true;
+    },
+    onLinkSelect: function ( opid ) {
+      hideSideMenuProperties();
+      $( '#deleteSelectedLink' ).removeClass( 'd-none');
+      $( '.edit-link' ).removeClass( 'd-none' );
+      $sideMenu.BootSideMenu.open();
+      return true;
+    },
+    onLinkUnselect: function () {
+      hideSideMenuProperties();
+      return true;
+    }
+  });
+
+  $dashboard.flowchart('setPositionRatio', 1);
+
   function logResponse( response, style ) {
     $( '#log' ).prepend(
       $( '<li>' ).text( response ).addClass( 'list-group-item bg-light text-' + style )
@@ -50,12 +124,6 @@ $( function() {
       }
     );
   }
-
-  var $dashboard = $( '#dashboard' );
-
-  //var Particle = require('particle-api-js');
-  var particle = new Particle();
-  var token;
 
   // An application can open a connection on multiple namespaces, and
   // Socket.IO will multiplex all those connections on a single
@@ -90,40 +158,7 @@ $( function() {
   });
 
   socket.on( 'create_graph', function(msg) {
-	  $dashboard.flowchart({
-			data: msg.data,
-			multipleLinksOnInput: true,
-			multipleLinksOnOutput: true,
-			onAfterChange: function( type ) {
-				var graphData = $dashboard.flowchart( 'getData' );
-				socket.emit( 'save_graph', { data: graphData } );
-				$( '#sendGraph' ).removeClass( 'btn-warning btn-success' ).addClass( 'btn-warning').text( 'Send Data');
-        return true;
-			},
-			onOperatorSelect: function ( opid ) {
-					socket.emit( 'get_op_params', { opid: opid } );
-					return true;
-			},
-			onOperatorUnselect: function () {
-				hideSideMenuProperties();
-				return true;
-			},
-			onOperatorDelete: function ( opid ) {
-				socket.emit( 'delete_op_params', { opid: opid } );
-				return true;
-			},
-			onLinkSelect: function ( opid ) {
-        hideSideMenuProperties();
-				$( '#deleteSelectedLink' ).removeClass( 'd-none');
-        $( '.edit-link' ).removeClass( 'd-none' );
-        $sideMenu.BootSideMenu.open();
-				return true;
-			},
-			onLinkUnselect: function () {
-        hideSideMenuProperties();
-				return true;
-			}
-	  });
+    $dashboard.flowchart('setData', msg.data);
   });
 
   socket.on( 'send_graph', function(msg) {
@@ -139,7 +174,9 @@ $( function() {
         counter += 250;
         i++;
       }
-      setTimeout ( function () { $( '#sendGraph' ).removeClass( 'btn-warning btn-success' ).addClass( 'btn-success').text( 'Sent' ) }, i * 1500 );
+      setTimeout ( function () {
+        $( '#sendGraph' ).removeClass( 'btn-warning btn-success' ).addClass( 'btn-success').text( 'Sent' )
+      }, i * 1500 );
     } else {
       console.log( 'No valid token.' );
       logResponse( 'No valid token.', 'warning' );

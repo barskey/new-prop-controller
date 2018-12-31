@@ -105,6 +105,24 @@ body>.navbar-collapse .nav li.separator+.nav-item {
   text-transform: uppercase;
 }
 
+#dashboard {
+  height: 2000px;
+  width: 2000px;
+  background-color: white;
+}
+
+#dashboard-container {
+    overflow: hidden;
+    background: repeating-linear-gradient(
+      45deg,
+      #eee,
+      #eee 10px,
+      #e5e5e5 10px,
+      #e5e5e5 20px
+    );
+    border: 1px solid black;
+}
+
 .footer {
   background-color: #CCCCCC;
   height: 50px;
