@@ -4,17 +4,6 @@ $( function() {
   $( '#triggerMenu' ).collapse( 'show' );
   $( '#actionMenu' ).collapse( 'show' );
 
-  var $sideMenu = $( '#editOperator' );
-  $sideMenu.BootSideMenu({
-  	side: 'right',
-  	pushBody: false,
-  	remember: false,
-  	autoClose: false,
-  	width: '300px',
-  	duration: 300,
-    closeOnClick: false
-  });
-
   var data = {
 	  operators: {},
 	  links: {}
@@ -40,7 +29,7 @@ $( function() {
     maxScale: 2
   });
   // Centering panzoom
-  $dashboard.panzoom('pan', 0, 0);
+  $dashboard.panzoom('pan', -15, 0);
 
   // Panzoom zoom handling...
   var possibleZooms = [0.5, 0.75, 1, 2, 3];
@@ -73,7 +62,7 @@ $( function() {
         return true;
     },
     onOperatorUnselect: function () {
-      hideSideMenuProperties();
+      hideProperties();
       return true;
     },
     onOperatorDelete: function ( opid ) {
@@ -81,14 +70,13 @@ $( function() {
       return true;
     },
     onLinkSelect: function ( opid ) {
-      hideSideMenuProperties();
+      hideProperties();
       $( '#deleteSelectedLink' ).removeClass( 'd-none');
       $( '.edit-link' ).removeClass( 'd-none' );
-      $sideMenu.BootSideMenu.open();
       return true;
     },
     onLinkUnselect: function () {
-      hideSideMenuProperties();
+      hideProperties();
       return true;
     }
   });
@@ -102,18 +90,19 @@ $( function() {
     $( '#log li:last-child').remove();
   };
 
-  function hideSideMenuProperties() {
+  function hideProperties() {
     $( '#saveSelectedOp, #deleteSelectedOp, #deleteSelectedLink' ).addClass( 'd-none' );
     $( '.edit-timer, .edit-input, .edit-interval, .edit-random, .edit-output, .edit-title, .edit-link' ).addClass( 'd-none' );
   };
 
-  function publish_event( name, data ) {
+  function publish_event( name, data, partnum, total ) {
     var publishEventSendGraph = particle.publishEvent(
       {name: name, data: data, auth: token, isPrivate: true}
     );
     publishEventSendGraph.then(
       function( data ) {
         if ( data.body.ok ) {
+          $( '#sendProgress' ).text(partnum + ' of ' + total).css('width', (partnum / total) * 100 + '%');
           console.log( name + ' published successfully.' );
           logResponse( name + ' published successfully.', 'success' );
         }
@@ -166,16 +155,19 @@ $( function() {
       var counter = 0;
       var i = 0;
       // send publish events in chunks 250 characters or less
+      var tot_parts = parseInt(msg.data.length / 250);
+      $( '#modalButton' ).attr('disabled', true);
       while( counter < msg.data.length ) {
         var part = msg.data.substring( counter, counter + 250 );
         var t = i * 1500;
         var name = 'Graph/' + i.toString();
-        setTimeout ( publish_event, t, name, part ); // deay them by 1 second to prevent them from caching together
+        setTimeout ( publish_event, t, name, part, i, tot_parts ); // delay them by 1 second to prevent them from caching together
         counter += 250;
         i++;
       }
       setTimeout ( function () {
-        $( '#sendGraph' ).removeClass( 'btn-warning btn-success' ).addClass( 'btn-success').text( 'Sent' )
+        $( '#sendGraph' ).removeClass( 'btn-warning btn-success' ).addClass( 'btn-success').text( 'Sent' );
+        $( '#modalButton' ).removeAttr('disabled').text( 'Done' );
       }, i * 1500 );
     } else {
       console.log( 'No valid token.' );
@@ -184,7 +176,7 @@ $( function() {
   });
 
   socket.on( 'show_params', function( msg ) {
-    hideSideMenuProperties();
+    hideProperties();
 	  $( '.edit-title, .edit-' + msg.params.type ).removeClass( 'd-none' );
 		$( '#saveSelectedOp, #deleteSelectedOp' ).removeClass( 'd-none');
 		$( '#op-type' ).val( msg.params.type );
@@ -192,7 +184,6 @@ $( function() {
 	  $( '#title' ).val( msg.params.title );
 	  $( '#' + msg.params.type + '-param1' ).val( msg.params.param1 );
 	  $( '#' + msg.params.type + '-param2' ).val( msg.params.param2 );
-    $sideMenu.BootSideMenu.open();
   });
 
   socket.on( 'log_response', function( msg ) {
@@ -245,4 +236,10 @@ $( function() {
 	$( '#sendGraph' ).click ( function() {
 		socket.emit('parse_graph');
 	});
+
+  $( '#clear' ).on('click', '#clearGraph', function() {
+	   console.log( 'cleargraph' );
+     //data = {};
+	   //socket.emit( 'clear_data', {data: 'graph'} );
+  });
 });

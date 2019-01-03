@@ -4,76 +4,117 @@
 {% block content %}
 <!-- Page specific JavaScript -->
 <script src="static/js/dashboard.js"></script>
-<div class="container-fluid" id="dashboard-container">
-	<div id="dashboard"></div>
-</div>
-<!-- Sliding properties sidebar -->
-<div id="editOperator" class="my-auto" style="height: 89vh">
-	<div class="container d-flex flex-column justify-content-end h-100">
-		<span class="h5 bg-dark text-white p-3 mt-1">
-			Properties
-			<button type="submit" class="btn btn-success float-right ml-1 d-none" id="saveSelectedOp"><i class="fas fa-check"></i></button>
-			<button type="button" class="btn btn-danger float-right ml-1 d-none" id="deleteSelectedOp"><i class="fas fa-trash"></i></button>
-			<button type="button" class="btn btn-danger float-right ml-1 d-none" id="deleteSelectedLink"><i class="fas fa-trash"></i></button>
 
-		</span>
-		<form class="form-inline mb-auto" id="editOperator">
-			<input type="hidden" name="type" id="op-type" />
-			<input type="hidden" name="hexid" id="op-hexid" />
-			<input type="hidden" name="param1" id="output-param1" />
-			<div class="form-row edit-title m-1 d-none">
-				<div class="input-group">
-					<div class="input-group-prepend">
-						<span class="input-group-text">Name</span>
-					</div>
-					<input type="text" class="form-control" id="title" name="title">
+<!-- Modals -->
+<div class="modal fade" id="clear" tabindex="-1" role="dialog" aria-labelledby="clearGraphLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="clearGraphLabel">Clear Graph</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Use the buttons to delete all the links, or clear the entire graph.<br />
+				Note: This can't be un-done.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-warning">Delete Links</button>
+        <button type="button" class="btn btn-danger" id="clearGraph">Clear Graph</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="sendingGraph" tabindex="-1" role="dialog" aria-labelledby="sendingGraphLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="sendingGraphLabel">Sending Data</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Don't go anywhere. This will only take a few seconds.
+				<br><br>
+				<div class="progress">
+					<div class="progress-bar" role="progressbar" id="sendProgress"></div>
 				</div>
+      </div>
+			<div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" id="modalButton" disabled>Sending...</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main role="main" class="col-md-8 ml-sm-auto pt-3 px-4">
+	<div class="container-fluid" id="dashboard-container">
+		<div id="dashboard"></div>
+	</div>
+</main>
+
+<!-- Right sticky sidebar -->
+<div class="sidebar-rt col-md-2 p-3">
+	<div class="sidebar-sticky">
+		<div class="card border-dark h-50">
+			<div class="card-header bg-dark text-white">
+				<h5>Properties</h5>
 			</div>
-			<div class="form-row edit-timer m-1 d-none">
-				<div class="input-group">
-					<div class="input-group-prepend">
-						<span class="input-group-text">After</span>
+			<div class="card-body">
+				<form id="editOperator">
+					<input type="hidden" name="type" id="op-type" />
+					<input type="hidden" name="hexid" id="op-hexid" />
+					<input type="hidden" name="param1" id="output-param1" />
+					<div class="form-group edit-title m-1 d-none">
+						<label for="title">Name:</label>
+						<input type="text" class="form-control" id="title" name="title">
 					</div>
-					<input type="text" class="form-control w-25" id="timer-param1" name="param1">
-					<div class="input-group-append">
-						<span class="input-group-text">s</span>
+					<div class="form-group edit-timer mt-2 d-none">
+							<label for="timer-param1">Delay for:</label>
+							<div class="input-group">
+							<input type="text" class="form-control" id="timer-param1" name="param1">
+							<div class="input-group-append">
+								<span class="input-group-text">s</span>
+							</div>
+						</div>
 					</div>
-				</div>
+					<div class="form-group edit-interval mt-2 d-none">
+						<label for="interval-param1">Happens every:</label>
+						<div class="input-group">
+							<input type="text" class="form-control" id="interval-param1" name="param1">
+							<div class="input-group-append">
+								<span class="input-group-text">s</span>
+							</div>
+						</div>
+					</div>
+					<div class="form-group edit-random mt-2 d-none">
+						<label for="random-param1">Happens randomly within:</label>
+						<div class="input-group">
+							<input type="text" class="form-control" id="random-param1" name="param1">
+							<input type="text" class="form-control" id="random-param2" name="param2">
+							<div class="input-group-append">
+								<span class="input-group-text">s</span>
+							</div>
+						</div>
+					</div>
+					<div class="form-row edit-link mt-2 w-100 d-none">
+						<input type="text" class="form-control w-100" placeholder="Click Trash to remove link..." readonly>
+					</div>
+				</form>
 			</div>
-			<div class="form-row edit-interval m-1 d-none">
-				<div class="input-group">
-					<div class="input-group-prepend">
-						<span class="input-group-text">Every</span>
-					</div>
-					<input type="text" class="form-control w-25" id="interval-param1" name="param1">
-					<div class="input-group-append">
-						<span class="input-group-text">s</span>
-					</div>
-				</div>
+			<div class="card-footer">
+				<button type="submit" class="btn btn-success float-right ml-1 d-none" id="saveSelectedOp"><i class="fas fa-check"></i></button>
+				<button type="button" class="btn btn-danger float-right ml-1 d-none" id="deleteSelectedOp"><i class="fas fa-trash"></i></button>
+				<button type="button" class="btn btn-danger float-right ml-1 d-none" id="deleteSelectedLink"><i class="fas fa-trash"></i></button>
 			</div>
-			<div class="form-row edit-random m-1 d-none">
-				<div class="input-group">
-					<div class="input-group-prepend">
-						<span class="input-group-text">Range</span>
-					</div>
-					<input type="text" class="form-control w-25" id="random-param1" name="param1">
-					<input type="text" class="form-control w-25" id="random-param2" name="param2">
-					<div class="input-group-append">
-						<span class="input-group-text">s</span>
-					</div>
-				</div>
-			</div>
-			<div class="form-row edit-link m-1 w-100 d-none">
-				<input type="text" class="form-control w-100" placeholder="Click Trash to remove link..." readonly>
-			</div>
-		</form>
-		<span class="h5 bg-dark text-white p-3">Status</span>
-		<ul class="list-group list-group-flush" id="log">
-			<li class="list-group-item bg-light">&nbsp;</li>
-			<li class="list-group-item bg-light">&nbsp;</li>
-		</ul>
-		<span class="w-100 text-right p-2">
-			<button type="button" class="btn btn-secondary" id="sendGraph">Up-to-Date</button>
+		</div>
+		<div class="w-100 pt-5">
+			<button type="button" class="btn btn-danger btn-block"  data-toggle="modal" data-target="#clear">Clear Data</button>
+			<button type="button" class="btn btn-secondary btn-block" data-toggle="modal" data-target="#sendingGraph" id="sendGraph">Up-to-Date</button>
+		</div>
 	</div>
 </div>
 {% endblock %}
