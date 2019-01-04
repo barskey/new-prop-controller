@@ -68,20 +68,30 @@
 					<input type="hidden" name="type" id="op-type" />
 					<input type="hidden" name="hexid" id="op-hexid" />
 					<input type="hidden" name="param1" id="output-param1" />
+					<input type="hidden" name="param2" id="output-param2" />
 					<div class="form-group input-group-sm edit-title m-1 d-none">
 						<label for="title" class="control-label">Name:</label>
 						<input type="text" class="form-control" id="title" name="title">
 					</div>
-					<div class="form-group input-group-sm edit-timer mt-2 d-none">
+					<div class="form-group edit-output mt-2 d-none">
+							<label for="timer-param1">Delay before:</label>
+							<div class="input-group input-group-sm">
+							<input type="text" class="form-control" id="output-param3" name="param3">
+							<div class="input-group-append">
+								<span class="input-group-text">s</span>
+							</div>
+						</div>
+					</div>
+					<div class="form-group edit-timer mt-2 d-none">
 							<label for="timer-param1">Delay for:</label>
-							<div class="input-group">
+							<div class="input-group input-group-sm">
 							<input type="text" class="form-control" id="timer-param1" name="param1">
 							<div class="input-group-append">
 								<span class="input-group-text">s</span>
 							</div>
 						</div>
 					</div>
-					<div class="form-group input-group-sm edit-interval mt-2 d-none">
+					<div class="form-group edit-interval mt-2 d-none">
 						<label for="interval-param1">Happens every:</label>
 						<div class="input-group input-group-sm">
 							<input type="text" class="form-control" id="interval-param1" name="param1">
@@ -90,7 +100,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="form-group input-group-sm edit-random mt-2 d-none">
+					<div class="form-group edit-random mt-2 d-none">
 						<label for="random-param1">Randomly between:</label>
 						<div class="input-group input-group-sm">
 							<input type="text" class="form-control" id="random-param1" name="param1">
@@ -108,7 +118,11 @@
 			<div class="card-footer">
 				<button type="button" class="btn btn-danger float-right ml-1 d-none" id="deleteSelectedOp"><i class="fas fa-trash"></i></button>
 				<button type="button" class="btn btn-danger float-right ml-1 d-none" id="deleteSelectedLink"><i class="fas fa-trash"></i></button>
+				<button type="button" class="btn btn-info float-right ml-1 d-none" id="cloneSelectedOp"><i class="fa fa-clone"></i></button>
 			</div>
+		</div>
+		<div class="mb-auto">
+			<p class="text-white"><em><span id="info"></span></em></p>
 		</div>
 		<div class="mb-4">
 			<button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#clear" id="clearGraphModal">Clear Data</button>

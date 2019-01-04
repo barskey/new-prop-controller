@@ -13,7 +13,6 @@ app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode=async_mode)
 
 posx, posy = 20, 20  # starting position of graph nodes
-SEND_LENGTH = 250  # number of characters to send as publish event (actually is SEND_LENGTH+1 since it starts at 0)
 
 @app.route('/')
 def index():
@@ -28,12 +27,13 @@ def dashboard():
 	inputs = []
 	outputs = []
 	for hexid, data in json.load(open('data/controllers.json')).items():
-		name = data['name']
-		inputs.append({'hexid': hexid, 'name': name})
-		outputs.append({'hexid': hexid, 'name': name, 'port': 'A'})
-		outputs.append({'hexid': hexid, 'name': name, 'port': 'B'})
-		outputs.append({'hexid': hexid, 'name': name, 'port': 'C'})
-		outputs.append({'hexid': hexid, 'name': name, 'port': 'D'})
+		if data['type'] == 'Node': # only collect inputs and outputs for Nodes
+			name = data['name']
+			inputs.append({'hexid': hexid, 'name': name})
+			outputs.append({'hexid': hexid, 'name': name, 'port': 'A'})
+			outputs.append({'hexid': hexid, 'name': name, 'port': 'B'})
+			outputs.append({'hexid': hexid, 'name': name, 'port': 'C'})
+			outputs.append({'hexid': hexid, 'name': name, 'port': 'D'})
 	return render_template('dashboard.html', async_mode=socketio.async_mode, inputs=inputs, outputs=outputs)
 
 
@@ -109,18 +109,39 @@ def add_op(msg):
 	posx = posx + 20
 	posy = posy + 20
 
+@socketio.on('clone_op')
+def clone_op(msg):
+	params = json.load(open('data/params.json'))
+	opid = get_next_opid()
+	old_opid = str(msg['opid'])
+	op = msg['op']
+	op['top'] = op['top'] + 10
+	op['left'] = op['left'] + 10
+	update_params({
+		'opid': str(opid),
+		'hexid': params[old_opid]['hexid'],
+		'title': params[old_opid]['title'],
+		'type': params[old_opid]['type'],
+		'param1': params[old_opid]['param1'],
+		'param2': params[old_opid]['param2'],
+		'param3': params[old_opid]['param3']
+	})
+	emit('add_to_graph', {'data': op, 'opid': opid})
+
+
 
 @socketio.on('update_parameters')
 def update_params(msg):
 	# msg = {opid: ##, title: sss, param1: sss, param2: sss, type: sss}
 	opid = str(msg['opid'])
 	params = json.load(open('data/params.json'))
-	# NOTE - all operator types get param1 and param2 set, even if they are not using it, e.g. outputs
+	# NOTE - all operator types get param1/2/3 set, even if they are not using it, e.g. outputs
 	params[opid] = {
 		'hexid': msg.get('hexid'),
 		'title': msg.get('title', 'No Name'),
 		'param1': msg.get('param1', 5),  # default to 5s if not set
 		'param2': msg.get('param2', 10),  # default to 10s if not set
+		'param3': msg.get('param3', 0),  # default to 0s if not set
 		'type': msg.get('type', '')  # default to empty string if not set
 	}
 	with open('data/params.json', 'w') as outfile:
@@ -149,10 +170,23 @@ def update_controller(msg):
 
 @socketio.on('get_op_params')
 def get_params(msg):
+	opid = str(msg['opid'])
+	controllers = json.load(open('data/controllers.json'))
 	params = json.load(open('data/params.json'))
+	hexid = params[opid]['hexid']
+	info = ""
+	if params[opid]['type'] == 'interval':
+		info = 'This Interval happens every ' + str(params[opid]['param1']) + ' seconds.'
+	elif params[opid]['type'] == 'random':
+		info = 'This Interval changes its duration each time to a new duration between ' + str(params[opid]['param1']) + ' and ' + str(params[opid]['param2']) + ' seconds.'
+	elif params[opid]['type'] == 'output':
+		info = 'Controller: ' + controllers[hexid]['name'] + ' Port: ' + str(params[opid]['param2'])
+	elif params[opid]['type'] == 'input':
+		info = 'Controller: ' + controllers[hexid]['name']
 	emit('show_params', {
-		'params': params[str(msg['opid'])],
-		'opid': str(msg['opid'])
+		'params': params[opid],
+		'opid': opid,
+		'info': info
 		}
 	)
 

@@ -9,6 +9,17 @@ $(document).ready(function() {
     $( '#log li:last-child').remove();
   };
 
+  function signalController( cid, state )
+  {
+    particle.signalDevice({ deviceId: cid, signal: state, auth: token }).then(
+      function(data) {
+        console.log( 'Device is shouting rainbows:', data );
+      },
+      function(err) {
+        console.log( 'Error sending a signal to the device:', err );
+    });
+  }
+
   //var Particle = require('particle-api-js');
   var particle = new Particle();
   var token;
@@ -83,14 +94,9 @@ $(document).ready(function() {
   });
 
   $( 'a.btn-ping' ).click( function () {
+    signalController( cid, true );
     var cid = $( this ).parents( 'tr' ).attr( 'id' );
-    particle.signalDevice({ deviceId: cid, signal: true, auth: token }).then(
-      function(data) {
-        console.log('Device is shouting rainbows:', data);
-      },
-      function(err) {
-        console.log('Error sending a signal to the device:', err);
-    });
+    setTimeout( signalController, 5000, cid, false );
   });
 
   //------------------------- Change Handlers ----------------------------------//

@@ -60,9 +60,9 @@
             <div class="nav-item collapse" id="triggerMenu">
               <ul class="nav flex-column">
         				<li class="nav-item dropright">
-        					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><i class="fas fa-plus fa-fw"></i>ADD TIMER</a>
+        					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><i class="fas fa-plus fa-fw"></i>ADD INTERVAL</a>
         					<div class="dropdown-menu">
-        						<a class="dropdown-item add-operator" href="#" data-type="timer">Wait # Seconds</a>
+        						<!--<a class="dropdown-item add-operator" href="#" data-type="timer">Wait # Seconds</a>-->
         						<a class="dropdown-item add-operator" href="#" data-type="interval">Fixed Interval</a>
         						<a class="dropdown-item add-operator" href="#" data-type="random">Random Interval</a>
         					</div>
@@ -85,6 +85,12 @@
         						{% for o in outputs %}
         						<a class="dropdown-item add-operator" href="#" data-type="output" data-hexid="{{ o.hexid }}" data-port="{{ o.port }}">{{ o.name }} > {{ o.port }}</a>
         						{% endfor %}
+        					</div>
+        				</li>
+                <li class="nav-item dropright">
+        					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><i class="fas fa-plus fa-fw"></i>ADD SPECIAL</a>
+        					<div class="dropdown-menu">
+        						<a class="dropdown-item add-operator" href="#" data-type="special" data-hexid="" data-port="">All OFF</a>
         					</div>
         				</li>
         				<li class="nav-item dropright">

@@ -91,8 +91,9 @@ $( function() {
   };
 
   function hideProperties() {
-    $( '#saveSelectedOp, #deleteSelectedOp, #deleteSelectedLink' ).addClass( 'd-none' );
+    $( '#cloneSelectedOp, #deleteSelectedOp, #deleteSelectedLink' ).addClass( 'd-none' );
     $( '.edit-timer, .edit-input, .edit-interval, .edit-random, .edit-output, .edit-title, .edit-link' ).addClass( 'd-none' );
+    $( '#info' ).text( '' );
   };
 
   function publish_event( name, data, partnum, total ) {
@@ -178,12 +179,14 @@ $( function() {
   socket.on( 'show_params', function( msg ) {
     hideProperties();
 	  $( '.edit-title, .edit-' + msg.params.type ).removeClass( 'd-none' );
-		$( '#deleteSelectedOp' ).removeClass( 'd-none');
+		$( '#deleteSelectedOp, #cloneSelectedOp' ).removeClass( 'd-none');
 		$( '#op-type' ).val( msg.params.type );
     $( '#op-hexid' ).val(msg.params.hexid );
 	  $( '#title' ).val( msg.params.title );
 	  $( '#' + msg.params.type + '-param1' ).val( msg.params.param1 );
 	  $( '#' + msg.params.type + '-param2' ).val( msg.params.param2 );
+    $( '#' + msg.params.type + '-param3' ).val( msg.params.param3 );
+    $( '#info' ).text( msg.info );
   });
 
   socket.on( 'log_response', function( msg ) {
@@ -207,6 +210,14 @@ $( function() {
     socket.emit( 'add_op', {type: type, hexid: hexid, port: port} );
   });
 
+  $( '#cloneSelectedOp' ).click( function() {
+    var opid = $dashboard.flowchart( 'getSelectedOperatorId' );
+    var opdata = $dashboard.flowchart( 'getOperatorData', opid );
+		if (opid != null) {
+			socket.emit( 'clone_op', { opid: opid, op: opdata });
+		}
+  });
+
 	$( 'input[type="text"]' ).change( function() {
 		var opid = $dashboard.flowchart( 'getSelectedOperatorId' );
 		var type = $( '#op-type' ).val();
@@ -214,8 +225,17 @@ $( function() {
 		var optitle = $( '#title' ).val();
 		var p1 = $( '#' + type + '-param1' ).val();
 		var p2 = $( '#' + type + '-param2' ).val();
+    var p3 = $( '#' + type + '-param3' ).val();
 		$dashboard.flowchart( 'setOperatorTitle', opid, optitle );
-		socket.emit( 'update_parameters', {opid: opid, hexid: hexid, title: optitle, param1: p1, param2: p2, type: type} );
+		socket.emit( 'update_parameters', {
+      opid: opid,
+      hexid: hexid,
+      title: optitle,
+      param1: p1,
+      param2: p2,
+      param3: p3,
+      type: type
+    });
 	});
 
 	$( '#deleteSelectedOp' ).click( function() {
