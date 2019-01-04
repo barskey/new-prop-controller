@@ -4,11 +4,6 @@ $( function() {
   $( '#triggerMenu' ).collapse( 'show' );
   $( '#actionMenu' ).collapse( 'show' );
 
-  var data = {
-	  operators: {},
-	  links: {}
-  };
-
   //var Particle = require('particle-api-js');
   var particle = new Particle();
   var token;
@@ -26,7 +21,12 @@ $( function() {
   $dashboard.panzoom('option', {
     increment: 0.1,
     minScale: 0.5,
-    maxScale: 2
+    maxScale: 2,
+    $reset: $( '#resetZoom' ),
+    onReset: function()
+    {
+      $dashboard.flowchart( 'setPositionRatio', 1 );
+    }
   });
   // Centering panzoom
   $dashboard.panzoom('pan', -15, 0);
@@ -48,7 +48,7 @@ $( function() {
   });
 
   $dashboard.flowchart({
-    data: data,
+    data: {operators: {}, links: {}},
     multipleLinksOnInput: true,
     multipleLinksOnOutput: true,
     onAfterChange: function( type ) {
@@ -178,7 +178,7 @@ $( function() {
   socket.on( 'show_params', function( msg ) {
     hideProperties();
 	  $( '.edit-title, .edit-' + msg.params.type ).removeClass( 'd-none' );
-		$( '#saveSelectedOp, #deleteSelectedOp' ).removeClass( 'd-none');
+		$( '#deleteSelectedOp' ).removeClass( 'd-none');
 		$( '#op-type' ).val( msg.params.type );
     $( '#op-hexid' ).val(msg.params.hexid );
 	  $( '#title' ).val( msg.params.title );
@@ -207,7 +207,7 @@ $( function() {
     socket.emit( 'add_op', {type: type, hexid: hexid, port: port} );
   });
 
-	$( '#saveSelectedOp' ).click ( function() {
+	$( 'input[type="text"]' ).change( function() {
 		var opid = $dashboard.flowchart( 'getSelectedOperatorId' );
 		var type = $( '#op-type' ).val();
     var hexid = $( '#op-hexid' ).val();
@@ -218,7 +218,7 @@ $( function() {
 		socket.emit( 'update_parameters', {opid: opid, hexid: hexid, title: optitle, param1: p1, param2: p2, type: type} );
 	});
 
-	$( '#deleteSelectedOp' ).click ( function() {
+	$( '#deleteSelectedOp' ).click( function() {
 		var opid = $dashboard.flowchart( 'getSelectedOperatorId' );
 		if (opid != null) {
 			socket.emit( 'delete_op_params', { opid: opid });
@@ -226,20 +226,35 @@ $( function() {
 		}
 	});
 
-	$( '#deleteSelectedLink' ).click ( function() {
+	$( '#deleteSelectedLink' ).click( function() {
 		var opid = $dashboard.flowchart( 'getSelectedLinkId' );
 		if (opid != null) {
 			$dashboard.flowchart( 'deleteLink', opid );
 		}
 	});
 
-	$( '#sendGraph' ).click ( function() {
+	$( '#sendGraph' ).click( function() {
 		socket.emit('parse_graph');
 	});
 
-  $( '#clear' ).on('click', '#clearGraph', function() {
-	   console.log( 'cleargraph' );
-     //data = {};
-	   //socket.emit( 'clear_data', {data: 'graph'} );
+  $( '#clearGraph' ).click( function() {
+     graphData = {
+   	  operators: {},
+   	  links: {}
+     };
+     $dashboard.flowchart( 'setData', graphData );
+     socket.emit( 'save_graph', { data: graphData } );
+     socket.emit( 'clear_data', { data: graphData } );
+     $( '#sendGraph' ).removeClass( 'btn-warning btn-success' ).addClass( 'btn-secondary').text( 'Up-to-Date');
+     $( '#clear' ).modal( 'hide' );
+  });
+
+  $( '#clearLinks' ).click( function() {
+    var graphData = $dashboard.flowchart( 'getData' );
+    for ( var link in graphData['links'] ) {
+      console.log( link );
+      $dashboard.flowchart( 'deleteLink', link );
+    }
+    $( '#clear' ).modal( 'hide' );
   });
 });

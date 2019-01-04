@@ -39,8 +39,8 @@ TRIGGERS = {
 			'class': 'trigger-input',
 			'inputs': {},
 			'outputs': {
-				'h': {'label': 'On HI'},
-				'l': {'label': 'On LO'}
+				'h': {'label': 'When ON'},
+				'l': {'label': 'When OFF'}
 			}
 		}
 	}
@@ -52,8 +52,8 @@ ACTIONS = {
 			'title': 'Output State',
 			'class': 'action-output',
 			'inputs': {
-				'H': {'label': 'Set HI'},
-				'L': {'label': 'Set LOW'},
+				'H': {'label': 'Turn ON'},
+				'L': {'label': 'Turn OFF'},
 				'T': {'label': 'Toggle'}
 			},
 			'outputs': {
@@ -78,6 +78,7 @@ ACTIONS = {
 CONTROLLER = {
 	'name': 'Controller',
 	'cid': '',
+	'type': '',
 	'input': '1',
 	'A': '0',
 	'B': '0',

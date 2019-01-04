@@ -62,6 +62,7 @@ def got_devices(msg):
 			controllers[new_hex_id] = defaults.CONTROLLER  # add to existing controllers
 			controllers[new_hex_id]['name'] = controller['name']
 			controllers[new_hex_id]['cid'] = cid
+			controllers[new_hex_id]['type'] = 'Node' if controller['platform_id'] == 14 else 'Gateway'
 			with open('data/controllers.json', 'w') as outfile:  # write to file
 				json.dump(controllers, outfile)
 			# socketio.emit('add_controller, {}')
@@ -112,11 +113,7 @@ def add_op(msg):
 @socketio.on('update_parameters')
 def update_params(msg):
 	# msg = {opid: ##, title: sss, param1: sss, param2: sss, type: sss}
-	opid = None
-	try:
-		opid = msg['opid'].decode('utf-8')
-	except AttributeError:
-		opid = msg['opid']
+	opid = str(msg['opid'])
 	params = json.load(open('data/params.json'))
 	# NOTE - all operator types get param1 and param2 set, even if they are not using it, e.g. outputs
 	params[opid] = {
@@ -132,27 +129,22 @@ def update_params(msg):
 
 @socketio.on('update_controller')
 def update_controller(msg):
-	hexid = None
-	try:
-		hexid = msg['hexid'].decode('utf-8')
-	except AttributeError:
-		hexid = msg['hexid']
-	key = None
-	try:
-		key = msg['key'].decode('utf-8')
-	except AttributeError:
-		key = msg['key']
+	hexid = str(msg['hexid'])
+	key = str(msg['key'])
 	value = msg['val']
 	controllers = json.load(open('data/controllers.json'))
 	if key == 'name':
 		controllers[hexid][key] = value
+		print('set name')
 	else:
+		#  Dont send defaults to controllers for name change only
 		controllers[hexid][key] = '1' if value else '0'
+		strDefaults = hexid + controllers[hexid]['input'] + controllers[hexid]['A'] + controllers[hexid]['B'] + controllers[hexid]['C'] + controllers[hexid]['D']
+		emit('send_defaults', {'data': strDefaults, 'cid': controllers[hexid]['cid']})
+		emit('log_response', {'response': 'Saved controller settings.', 'style': 'success'})
+		print('emit send_defaults')
 	with open('data/controllers.json', 'w') as outfile:
 		json.dump(controllers, outfile)
-	strDefaults = hexid + controllers[hexid]['input'] + controllers[hexid]['A'] + controllers[hexid]['B'] + controllers[hexid]['C'] + controllers[hexid]['D']
-	emit('send_defaults', {'data': strDefaults, 'cid': controllers[hexid]['cid']})
-	emit('log_response', {'response': 'Saved controller settings.', 'style': 'success'})
 
 
 @socketio.on('get_op_params')
@@ -183,13 +175,11 @@ def delete_params(msg):
 
 @socketio.on('clear_data')
 def clear_data(msg):
-	print(msg['data'])
-	empty = {}
-	if msg['data'] in ['graph', 'all']:
-		with open('data/graph.json', 'w') as outfile:
-			json.dump(empty, outfile)
-		with open('data/params.json', 'w') as outfile:
-			json.dump(empty, outfile)
+	#print('Clearing graph.', msg['data'])
+	with open('data/graph.json', 'w') as outfile:
+		json.dump(msg['data'], outfile)
+	with open('data/params.json', 'w') as outfile:
+		json.dump({}, outfile)
 
 
 # Parse graph json data into json representation of action/event data to send to controllers.
