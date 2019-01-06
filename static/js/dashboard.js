@@ -277,4 +277,8 @@ $( function() {
     }
     $( '#clear' ).modal( 'hide' );
   });
+
+  $( '#sedningGraph' ).on( 'show.bs.modal', function( e ) {
+    $( '#sendProgress' ).text('').css('width', '0');
+  });
 });

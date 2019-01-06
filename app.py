@@ -217,17 +217,15 @@ def clear_data(msg):
 
 
 # Parse graph json data into json representation of action/event data to send to controllers.
-# See defaults.py for dict structure.
+# See defaults.py for operators/links dict structure.
 # triggers - each trigger sent as JSON:
 # {hexid: <hex id>,
 #  type: <Random, Interval, Input>,
 #  params: [<param1, param2>],
 #  actions: []
 # }
-links = None
 @socketio.on('parse_graph')
 def parse_graph_data():
-	global links
 	params = json.load(open('data/params.json'))
 	data = json.load(open('data/graph.json'))
 	operators = data.get('operators', None)
@@ -256,29 +254,40 @@ def parse_graph_data():
 				'params': [str(params[str_id]['param1']), str(params[str_id]['param2'])]
 			})
 		elif type.endswith('input'):
-			# create two triggers - one for on hi, one for on lo
-			triggers.append({
-				'opid': str_id,
-				'hexid': params[str_id]['hexid'],
-				'type': 'Input',
-				'params': ['h']  # on HI
-			})
-			triggers.append({
-				'opid': str_id,
-				'hexid': params[str_id]['hexid'],
-				'type': 'Input',
-				'params': ['l']  # on LO
-			})
+			#  Look for links that come from this trigger.
+			#  Loop thru links twice to check for h and l connecters.
+			for linkid,link in links.items():
+				if link['fromOperator'] == str_id and link['fromConnector'] == 'h':
+					triggers.append({
+						'opid': str_id,
+						'hexid': params[str_id]['hexid'],
+						'type': 'Input',
+						'params': ['h']
+					})
+					break #  only append this trigger once
+			for linkid,link in links.items():
+				if link['fromOperator'] == str_id and link['fromConnector'] == 'l':
+					triggers.append({
+						'opid': str_id,
+						'hexid': params[str_id]['hexid'],
+						'type': 'Input',
+						'params': ['l']
+					})
+					break #  only append this trigger once
 
 	# iterate through triggers and build action arrays
 	for trigger in triggers:
 		#print('Getting actions for trigger ' + trigger['type'], trigger)
 		trigger['actions'] = get_actions(str(trigger['opid']), trigger['type'], trigger['params'][0])
+		trigger.pop('opid')
 
-	#print (json.dumps(triggers, indent=2))
-	print ('String length: {0}'.format(len(json.dumps(triggers, separators=(',',':')))))
+	print (json.dumps(triggers, indent=2))
 
-	data = json.dumps(triggers, separators=(',', ':'))  # TODO Get rid of all opid keys to save space
+	data = json.dumps(triggers, separators=(',', ':'))
+	#data = json.dumps(triggers, separators=(',', ':')).replace('"', '')
+	print ('String length: {0}'.format(len(data)))
+	# TODO Get rid of all opid keys to save space
+	# TODO Remove all "" from string to see if it still parses
 	#print('Sending Trigger:', data)
 	emit('send_graph', {'data': data})
 
@@ -290,15 +299,13 @@ def parse_graph_data():
 #    actions: []
 # } ]
 def get_actions(str_opid, from_type, on_state):
-	global links
 	params = json.load(open('data/params.json'))
 	data = json.load(open('data/graph.json'))
 	operators = data['operators']
-	#links = data['links']
+	links = data['links']
 
 	actions = []
-	links_copy = dict(links) # copy dict so as we iterate thru we can remove from original dict
-	for linkid, v in links_copy.items():
+	for linkid, v in links.items():
 		if str_opid == str(v['fromOperator']):  # matched this operator to from trigger/action
 			proceed = True
 			#print(from_type, v['fromConnector'], on_state)
@@ -306,7 +313,6 @@ def get_actions(str_opid, from_type, on_state):
 				if v['fromConnector'] != on_state:  # only proceed if from connector matches
 					proceed = False
 			if proceed is True:
-				del links[linkid] # remove it since we have already added to triggers
 				to_opid = v['toOperator']  # operator id to which this link connects
 				hexid = params[str(to_opid)]['hexid']  # get hex id of controller
 				type = operators[str(to_opid)]['properties']['class']
@@ -320,7 +326,7 @@ def get_actions(str_opid, from_type, on_state):
 				elif type.endswith('sound'):
 					action_params = []
 					type = 'Sound'
-				action = {'opid': to_opid, 'hexid': hexid, 'type': type, 'params': action_params}
+				action = {'hexid': hexid, 'type': type, 'params': action_params}
 				action['actions'] = get_actions(str(to_opid), 'Action', v['fromConnector'])
 				actions.append(action)
 
