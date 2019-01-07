@@ -60,7 +60,7 @@
             <div class="nav-item collapse" id="triggerMenu">
               <ul class="nav flex-column">
         				<li class="nav-item dropright">
-        					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><i class="fas fa-plus fa-fw"></i>ADD INTERVAL</a>
+        					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><span data-toggle="tooltip" data-placement="right" data-container="body" title="Timers that trigger conitnually"><i class="fas fa-info-circle fa-fw"></i></span>ADD INTERVAL</a>
         					<div class="dropdown-menu">
         						<!--<a class="dropdown-item add-operator" href="#" data-type="timer">Wait # Seconds</a>-->
         						<a class="dropdown-item add-operator" href="#" data-type="interval">Fixed Interval</a>
@@ -68,7 +68,7 @@
         					</div>
         				</li>
         				<li class="nav-item dropright">
-        					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><i class="fas fa-plus fa-fw"></i>ADD TRIGGER</a>
+        					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><span data-toggle="tooltip" data-placement="right" data-container="body" title="Motion Sensor or Switch"><i class="fas fa-info-circle fa-fw"></i></span>ADD TRIGGER</a>
         					<div class="dropdown-menu">
         						{% for i in inputs %}
         						<a class="dropdown-item add-operator" href="#" data-type="input" data-hexid="{{ i.hexid }}">> {{ i.name }}</a>
@@ -80,21 +80,15 @@
             <div class="nav-item collapse" id="actionMenu">
               <ul class="nav flex-column">
         				<li class="nav-item dropright">
-        					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><i class="fas fa-plus fa-fw"></i>ADD OUTPUT</a>
+        					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><span data-toggle="tooltip" data-placement="right" data-container="body" title="Set Output On or Off"><i class="fas fa-info-circle fa-fw"></i></span>ADD OUTPUT</a>
         					<div class="dropdown-menu">
         						{% for o in outputs %}
         						<a class="dropdown-item add-operator" href="#" data-type="output" data-hexid="{{ o.hexid }}" data-port="{{ o.port }}">{{ o.name }} > {{ o.port }}</a>
         						{% endfor %}
         					</div>
         				</li>
-                <li class="nav-item dropright">
-        					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><i class="fas fa-plus fa-fw"></i>ADD SPECIAL</a>
-        					<div class="dropdown-menu">
-        						<a class="dropdown-item add-operator" href="#" data-type="special" data-hexid="" data-port="">All OFF</a>
-        					</div>
-        				</li>
         				<li class="nav-item dropright">
-        					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><i class="fas fa-plus fa-fw"></i>ADD SOUND</a>
+        					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><span data-toggle="tooltip" data-placement="right" data-container="body" title="Play a sound"><i class="fas fa-info-circle fa-fw"></i></span>ADD SOUND</a>
         					<div class="dropdown-menu">
         						{% for s in sounds %}
         						<a class="dropdown-item add-operator" href="#" data-type="output" data-hexid="{{ s.hexid }}">{{ s.name }}</a>
