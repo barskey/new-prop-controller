@@ -285,7 +285,7 @@ def parse_graph_data():
 		trigger['actions'] = get_actions(str(trigger['opid']), trigger['type'], trigger['params'][0])
 		trigger.pop('opid') #  remove 'opid' key so it doesn't take more chars in output
 
-	print (json.dumps(triggers, indent=2))
+	#print (json.dumps(triggers, indent=2))
 
 	data = json.dumps(triggers, separators=(',', ':'))
 	#data = json.dumps(triggers, separators=(',', ':')).replace('"', '')

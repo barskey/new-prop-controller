@@ -95,7 +95,7 @@ $( function() {
   function hideProperties() {
     $( '#cloneSelectedOp, #deleteSelectedOp, #deleteSelectedLink' ).addClass( 'd-none' );
     $( '.edit-timer, .edit-input, .edit-interval, .edit-random, .edit-output, .edit-title, .edit-link' ).addClass( 'd-none' );
-    $( '#info1', '#info2' ).text( '' );
+    $( '#info1, #info2' ).text( '' );
   };
 
   function publish_event( name, data, partnum, total ) {
@@ -158,13 +158,13 @@ $( function() {
       var counter = 0;
       var i = 0;
       // send publish events in chunks 250 characters or less
-      var tot_parts = parseInt(msg.data.length / 250);
+      var tot_parts = parseInt(msg.data.length / 250) + 1;
       $( '#modalButton' ).attr('disabled', true);
       while( counter < msg.data.length ) {
         var part = msg.data.substring( counter, counter + 250 );
         var t = i * 1500;
         var name = 'Graph/' + i.toString();
-        setTimeout ( publish_event, t, name, part, i, tot_parts ); // delay them by 1 second to prevent them from caching together
+        setTimeout ( publish_event, t, name, part, i + 1, tot_parts ); // delay them by 1 second to prevent them from caching together
         counter += 250;
         i++;
       }
