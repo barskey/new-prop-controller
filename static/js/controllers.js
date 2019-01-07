@@ -94,8 +94,8 @@ $(document).ready(function() {
   });
 
   $( 'a.btn-ping' ).click( function () {
-    signalController( cid, true );
     var cid = $( this ).parents( 'tr' ).attr( 'id' );
+    signalController( cid, true );
     setTimeout( signalController, 5000, cid, false );
   });
 

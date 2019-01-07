@@ -261,7 +261,7 @@ def parse_graph_data():
 			#  Look for links that come from this trigger.
 			#  Loop thru links twice to check for h and l connecters.
 			for linkid,link in links.items():
-				if link['fromOperator'] == str_id and link['fromConnector'] == 'h':
+				if str(link['fromOperator']) == str_id and link['fromConnector'] == 'h':
 					triggers.append({
 						'opid': str_id,
 						'hexid': params[str_id]['hexid'],
@@ -270,7 +270,7 @@ def parse_graph_data():
 					})
 					break #  only append this trigger once
 			for linkid,link in links.items():
-				if link['fromOperator'] == str_id and link['fromConnector'] == 'l':
+				if str(link['fromOperator']) == str_id and link['fromConnector'] == 'l':
 					triggers.append({
 						'opid': str_id,
 						'hexid': params[str_id]['hexid'],
@@ -285,7 +285,7 @@ def parse_graph_data():
 		trigger['actions'] = get_actions(str(trigger['opid']), trigger['type'], trigger['params'][0])
 		trigger.pop('opid') #  remove 'opid' key so it doesn't take more chars in output
 
-	#print (json.dumps(triggers, indent=2))
+	print (json.dumps(triggers, indent=2))
 
 	data = json.dumps(triggers, separators=(',', ':'))
 	#data = json.dumps(triggers, separators=(',', ':')).replace('"', '')
@@ -331,8 +331,8 @@ def get_actions(str_opid, from_type, trigger_state):
 			action = {'hexid': hexid, 'type': type, 'params': action_params}
 			action['actions'] = get_actions(str(to_opid), 'Action', v['fromConnector'])
 			#  add a timer action if this is an input and needs a delay before
-			print(type,params[str(to_opid)]['param3'])
-			if type == 'Output' and int(params[str(to_opid)]['param3']) > 0:
+			#print(type,params[str(to_opid)]['param3'])
+			if type == 'Output' and float(params[str(to_opid)]['param3']) > 0:
 				t_action = {
 					'hexid': '',
 					'type': 'Timer',
