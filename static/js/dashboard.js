@@ -188,6 +188,13 @@ $( function() {
 	  $( '#' + msg.params.type + '-param1' ).val( msg.params.param1 );
 	  $( '#' + msg.params.type + '-param2' ).val( msg.params.param2 );
     $( '#' + msg.params.type + '-param3' ).val( msg.params.param3 );
+    if (parseFloat(msg.params.param3) != 0) {
+      $( '#' + msg.params.type + '-param3' ).attr( 'readonly', false );
+      $( '#output-delay-check' ).prop( 'checked', true );
+    } else {
+      $( '#' + msg.params.type + '-param3' ).attr( 'readonly', true );
+      $( '#output-delay-check' ).prop( 'checked', false );
+    }
     $( '#info1' ).text( msg.info[0] );
     $( '#info2' ).text( msg.info[1] );
   });
@@ -240,6 +247,17 @@ $( function() {
       type: type
     });
 	});
+
+  $( '#output-delay-check' ).change( function() {
+    console.log('checkbox changed');
+    if ($( this ).prop( 'checked' )) {
+      $( '#output-param3' ).attr( 'readonly', false );
+    } else {
+      $( '#output-param3' ).attr( 'readonly', true );
+      $( '#output-param3' ).val( '0' );
+      $( '#output-param3' ).change();
+    }
+  });
 
 	$( '#deleteSelectedOp' ).click( function() {
 		var opid = $dashboard.flowchart( 'getSelectedOperatorId' );

@@ -74,22 +74,27 @@
 						<input type="text" class="form-control" id="title" name="title">
 					</div>
 					<div class="form-group edit-output mt-2 d-none">
-							<label for="timer-param1">Delay before:</label>
-							<div class="input-group input-group-sm">
-							<input type="text" class="form-control" id="output-param3" name="param3">
-							<div class="input-group-append">
-								<span class="input-group-text">s</span>
-							</div>
-						</div>
+						<label for="timer-param1">Delay before:</label>
+						<div class="input-group input-group-sm">
+              <div class="input-group-prepend">
+                <div class="input-group-text">
+                  <input type="checkbox" id="output-delay-check">
+                </div>
+              </div>
+  						<input type="text" class="form-control" id="output-param3" name="param3" readonly>
+  						<div class="input-group-append">
+  							<span class="input-group-text">s</span>
+  						</div>
+  					</div>
 					</div>
 					<div class="form-group edit-timer mt-2 d-none">
-							<label for="timer-param1">Delay for:</label>
-							<div class="input-group input-group-sm">
-							<input type="text" class="form-control" id="timer-param1" name="param1">
-							<div class="input-group-append">
-								<span class="input-group-text">s</span>
-							</div>
-						</div>
+						<label for="timer-param1">Delay for:</label>
+						<div class="input-group input-group-sm">
+  						<input type="text" class="form-control" id="timer-param1" name="param1">
+  						<div class="input-group-append">
+  							<span class="input-group-text">s</span>
+  						</div>
+  					</div>
 					</div>
 					<div class="form-group edit-interval mt-2 d-none">
 						<label for="interval-param1">Happens every:</label>
