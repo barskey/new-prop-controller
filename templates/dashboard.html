@@ -116,13 +116,14 @@
 				</form>
 			</div>
 			<div class="card-footer">
-				<button type="button" class="btn btn-danger float-right ml-1 d-none" id="deleteSelectedOp"><i class="fas fa-trash"></i></button>
-				<button type="button" class="btn btn-danger float-right ml-1 d-none" id="deleteSelectedLink"><i class="fas fa-trash"></i></button>
-				<button type="button" class="btn btn-info float-right ml-1 d-none" id="cloneSelectedOp"><i class="fa fa-clone"></i></button>
+				<button type="button" class="btn btn-danger float-right ml-1 d-none" data-toggle="tooltip" data-placement="bottom" data-container="body" title="Delete selected action" id="deleteSelectedOp"><i class="fas fa-trash"></i></button>
+				<button type="button" class="btn btn-danger float-right ml-1 d-none" data-toggle="tooltip" data-placement="bottom" data-container="body" title="Delete selected link" id="deleteSelectedLink"><i class="fas fa-trash"></i></button>
+				<button type="button" class="btn btn-info float-right ml-1 d-none" data-toggle="tooltip" data-placement="bottom" data-container="body" title="Duplicate selected action" id="cloneSelectedOp"><i class="fa fa-clone"></i></button>
 			</div>
 		</div>
 		<div class="mb-auto">
-			<p class="text-white"><em><span id="info"></span></em></p>
+			<p class="text-white my-1"><em><span id="info1"></span></em></p>
+      <p class="text-white my-1"><em><span id="info2"></span></em></p>
 		</div>
 		<div class="mb-4">
 			<button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#clear" id="clearGraphModal">Clear Data</button>

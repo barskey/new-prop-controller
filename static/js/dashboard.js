@@ -4,6 +4,8 @@ $( function() {
   $( '#triggerMenu' ).collapse( 'show' );
   $( '#actionMenu' ).collapse( 'show' );
 
+  //$( '[data-toggle="tooltip"]' ).tooltip();
+
   //var Particle = require('particle-api-js');
   var particle = new Particle();
   var token;
@@ -93,7 +95,7 @@ $( function() {
   function hideProperties() {
     $( '#cloneSelectedOp, #deleteSelectedOp, #deleteSelectedLink' ).addClass( 'd-none' );
     $( '.edit-timer, .edit-input, .edit-interval, .edit-random, .edit-output, .edit-title, .edit-link' ).addClass( 'd-none' );
-    $( '#info' ).text( '' );
+    $( '#info1', '#info2' ).text( '' );
   };
 
   function publish_event( name, data, partnum, total ) {
@@ -186,7 +188,8 @@ $( function() {
 	  $( '#' + msg.params.type + '-param1' ).val( msg.params.param1 );
 	  $( '#' + msg.params.type + '-param2' ).val( msg.params.param2 );
     $( '#' + msg.params.type + '-param3' ).val( msg.params.param3 );
-    $( '#info' ).text( msg.info );
+    $( '#info1' ).text( msg.info[0] );
+    $( '#info2' ).text( msg.info[1] );
   });
 
   socket.on( 'log_response', function( msg ) {

@@ -174,15 +174,19 @@ def get_params(msg):
 	controllers = json.load(open('data/controllers.json'))
 	params = json.load(open('data/params.json'))
 	hexid = params[opid]['hexid']
-	info = ""
+	info = []
 	if params[opid]['type'] == 'interval':
-		info = 'This Interval happens every ' + str(params[opid]['param1']) + ' seconds.'
+		info.append('This Interval happens continously every ' + str(params[opid]['param1']) + ' seconds.')
+		info.append('After every ' + str(params[opid]['param1']) + ' seconds the connected outputs will run.')
 	elif params[opid]['type'] == 'random':
-		info = 'This Interval changes its duration each time to a new duration between ' + str(params[opid]['param1']) + ' and ' + str(params[opid]['param2']) + ' seconds.'
+		info.append('This Interval happens continously between ' + str(params[opid]['param1']) + ' and ' + str(params[opid]['param2']) + ' seconds.')
+		info.append('The connected actions will run and a new random delay will be used.')
 	elif params[opid]['type'] == 'output':
-		info = 'Controller: ' + controllers[hexid]['name'] + ' Port: ' + str(params[opid]['param2'])
+		info.append('Controller: ' + controllers[hexid]['name'])
+		info.append(' Port: ' + str(params[opid]['param2']))
 	elif params[opid]['type'] == 'input':
-		info = 'Controller: ' + controllers[hexid]['name']
+		info.append('Controller: ' + controllers[hexid]['name'])
+		info.append('')
 	emit('show_params', {
 		'params': params[opid],
 		'opid': opid,
@@ -279,7 +283,7 @@ def parse_graph_data():
 	for trigger in triggers:
 		#print('Getting actions for trigger ' + trigger['type'], trigger)
 		trigger['actions'] = get_actions(str(trigger['opid']), trigger['type'], trigger['params'][0])
-		trigger.pop('opid')
+		trigger.pop('opid') #  remove 'opid' key so it doesn't take more chars in output
 
 	print (json.dumps(triggers, indent=2))
 
@@ -298,7 +302,7 @@ def parse_graph_data():
 #    params: [<H/L(state), ##(sound id), #.#(time in s)>, <>], <-- if output, [0] is state, [1] is port
 #    actions: []
 # } ]
-def get_actions(str_opid, from_type, on_state):
+def get_actions(str_opid, from_type, trigger_state):
 	params = json.load(open('data/params.json'))
 	data = json.load(open('data/graph.json'))
 	operators = data['operators']
@@ -307,27 +311,36 @@ def get_actions(str_opid, from_type, on_state):
 	actions = []
 	for linkid, v in links.items():
 		if str_opid == str(v['fromOperator']):  # matched this operator to from trigger/action
-			proceed = True
 			#print(from_type, v['fromConnector'], on_state)
-			if from_type == "Input":  # if this is a trigger...
-				if v['fromConnector'] != on_state:  # only proceed if from connector matches
-					proceed = False
-			if proceed is True:
-				to_opid = v['toOperator']  # operator id to which this link connects
-				hexid = params[str(to_opid)]['hexid']  # get hex id of controller
-				type = operators[str(to_opid)]['properties']['class']
+			# if this was called from a trigger, only proceed if from connector matches
+			if from_type == "Input" and v['fromConnector'] != trigger_state:
+				break
+			to_opid = v['toOperator']  # operator id to which this link connects
+			hexid = params[str(to_opid)]['hexid']  # get hex id of controller
+			type = operators[str(to_opid)]['properties']['class']
+			action_params = []
+			if type.endswith('timer'):
+				type = 'Timer'
+				action_params = [str(params[str(to_opid)]['param1'])]
+			elif type.endswith('output'):
+				type = 'Output'
+				action_params = [v['toConnector'], params[str(to_opid)]['param2']]
+			elif type.endswith('sound'):
 				action_params = []
-				if type.endswith('timer'):
-					type = 'Timer'
-					action_params = [str(params[str(to_opid)]['param1'])]
-				elif type.endswith('output'):
-					type = 'Output'
-					action_params = [v['toConnector'], params[str(to_opid)]['param2']]
-				elif type.endswith('sound'):
-					action_params = []
-					type = 'Sound'
-				action = {'hexid': hexid, 'type': type, 'params': action_params}
-				action['actions'] = get_actions(str(to_opid), 'Action', v['fromConnector'])
+				type = 'Sound'
+			action = {'hexid': hexid, 'type': type, 'params': action_params}
+			action['actions'] = get_actions(str(to_opid), 'Action', v['fromConnector'])
+			#  add a timer action if this is an input and needs a delay before
+			print(type,params[str(to_opid)]['param3'])
+			if type == 'Output' and int(params[str(to_opid)]['param3']) > 0:
+				t_action = {
+					'hexid': '',
+					'type': 'Timer',
+					'params': [params[str(to_opid)]['param3']],
+					'actions': [action]
+				}
+				actions.append(t_action)
+			else:
 				actions.append(action)
 
 	#print('Found actions:', actions)
